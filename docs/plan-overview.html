@@ -1,0 +1,467 @@
+<title>FE Interview Prep — Kế hoạch dự án</title>
+<style>
+  :root {
+    /* Light (default) — cool off-white with indigo bias */
+    --bg: #f4f5fb;
+    --surface: #ffffff;
+    --surface-2: #eceff8;
+    --border: #e0e3f0;
+    --border-strong: #ccd1e6;
+    --ink: #14172a;
+    --ink-2: #3c4162;
+    --ink-3: #6a7096;
+    --accent: #4655ec;
+    --accent-ink: #ffffff;
+    --accent-soft: rgba(70, 85, 236, 0.10);
+    --good: #0d9b6c;
+    --good-soft: rgba(13, 155, 108, 0.12);
+    --warn: #c47d00;
+    --warn-soft: rgba(196, 125, 0, 0.13);
+    --bad: #d92e54;
+    --bad-soft: rgba(217, 46, 84, 0.11);
+    --shadow: 0 1px 2px rgba(20, 23, 42, 0.04), 0 8px 24px -12px rgba(20, 23, 42, 0.14);
+    --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, "Cascadia Code", "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+    --radius: 14px;
+    --radius-sm: 9px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0a0c18;
+      --surface: #13162a;
+      --surface-2: #1b1f38;
+      --border: #262b49;
+      --border-strong: #333960;
+      --ink: #eef0fb;
+      --ink-2: #b6bcda;
+      --ink-3: #838ab0;
+      --accent: #8393ff;
+      --accent-ink: #0a0c18;
+      --accent-soft: rgba(131, 147, 255, 0.14);
+      --good: #38d39b;
+      --good-soft: rgba(56, 211, 155, 0.14);
+      --warn: #fbbf3f;
+      --warn-soft: rgba(251, 191, 63, 0.14);
+      --bad: #fb7093;
+      --bad-soft: rgba(251, 112, 147, 0.14);
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 30px -14px rgba(0, 0, 0, 0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0a0c18; --surface: #13162a; --surface-2: #1b1f38; --border: #262b49; --border-strong: #333960;
+    --ink: #eef0fb; --ink-2: #b6bcda; --ink-3: #838ab0;
+    --accent: #8393ff; --accent-ink: #0a0c18; --accent-soft: rgba(131, 147, 255, 0.14);
+    --good: #38d39b; --good-soft: rgba(56, 211, 155, 0.14);
+    --warn: #fbbf3f; --warn-soft: rgba(251, 191, 63, 0.14);
+    --bad: #fb7093; --bad-soft: rgba(251, 112, 147, 0.14);
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 30px -14px rgba(0,0,0,0.6);
+  }
+  :root[data-theme="light"] {
+    --bg: #f4f5fb; --surface: #ffffff; --surface-2: #eceff8; --border: #e0e3f0; --border-strong: #ccd1e6;
+    --ink: #14172a; --ink-2: #3c4162; --ink-3: #6a7096;
+    --accent: #4655ec; --accent-ink: #ffffff; --accent-soft: rgba(70,85,236,0.10);
+    --good: #0d9b6c; --good-soft: rgba(13,155,108,0.12);
+    --warn: #c47d00; --warn-soft: rgba(196,125,0,0.13);
+    --bad: #d92e54; --bad-soft: rgba(217,46,84,0.11);
+    --shadow: 0 1px 2px rgba(20,23,42,0.04), 0 8px 24px -12px rgba(20,23,42,0.14);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink-2);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); }
+
+  /* Topbar */
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--bg) 86%, transparent);
+    backdrop-filter: saturate(1.4) blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-in { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 11px; font-weight: 680; color: var(--ink); letter-spacing: -0.01em; }
+  .glyph {
+    width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center;
+    background: var(--accent); color: var(--accent-ink); font-family: var(--font-mono);
+    font-weight: 700; font-size: 15px; box-shadow: var(--shadow);
+  }
+  .theme-btn {
+    display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+    background: var(--surface); border: 1px solid var(--border); color: var(--ink-2);
+    border-radius: 999px; padding: 7px 13px; font-size: 0.82rem; font-family: var(--font-mono);
+  }
+  .theme-btn:hover { border-color: var(--border-strong); color: var(--ink); }
+  .theme-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Kicker / labels */
+  .kicker {
+    font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-3); font-weight: 600;
+  }
+
+  /* Hero */
+  .hero { padding: clamp(38px, 7vw, 68px) 0 26px; }
+  .hero h1 {
+    font-size: clamp(2rem, 5.2vw, 3.15rem); line-height: 1.04; letter-spacing: -0.025em;
+    color: var(--ink); margin: 14px 0 0; font-weight: 780; text-wrap: balance; max-width: 20ch;
+  }
+  .hero p.lead { font-size: clamp(1rem, 2vw, 1.16rem); color: var(--ink-2); margin: 16px 0 0; max-width: 60ch; }
+  .pills { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 22px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono);
+    font-size: 0.76rem; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--ink-2);
+  }
+  .pill.hot { background: var(--warn-soft); border-color: transparent; color: var(--warn); font-weight: 600; }
+  .pill.done { background: var(--good-soft); border-color: transparent; color: var(--good); font-weight: 600; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); }
+  .dot.warn { background: var(--warn); }
+
+  /* Stat strip */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 30px;
+           background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .stat { background: var(--surface); padding: 18px 18px; }
+  .stat .n { font-family: var(--font-mono); font-size: 1.7rem; font-weight: 700; color: var(--ink);
+             font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .stat .n span { color: var(--accent); }
+  .stat .l { font-size: 0.82rem; color: var(--ink-3); margin-top: 2px; }
+  @media (max-width: 620px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+
+  /* Sections */
+  section { padding: clamp(30px, 5vw, 46px) 0; border-top: 1px solid var(--border); }
+  .sec-head { margin-bottom: 24px; }
+  .sec-head h2 { font-size: clamp(1.3rem, 3vw, 1.6rem); color: var(--ink); margin: 8px 0 0; font-weight: 720; letter-spacing: -0.015em; }
+  .sec-head p { margin: 8px 0 0; color: var(--ink-3); max-width: 62ch; font-size: 0.95rem; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+
+  /* Tech stack */
+  .stack { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; }
+  .tech { padding: 15px 16px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--border); }
+  .tech .role { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
+  .tech .name { color: var(--ink); font-weight: 640; margin-top: 5px; font-size: 0.98rem; }
+  .tech .sub { color: var(--ink-3); font-size: 0.8rem; margin-top: 1px; }
+
+  /* Roadmap */
+  .rail { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x proximity; }
+  .phase { scroll-snap-align: start; flex: 0 0 clamp(230px, 30vw, 270px); padding: 20px; border-radius: var(--radius);
+           background: var(--surface); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
+  .phase.gate { border-color: color-mix(in srgb, var(--warn) 45%, var(--border)); background: var(--warn-soft); }
+  .phase .ptag { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
+  .phase.gate .ptag { color: var(--warn); font-weight: 700; }
+  .phase h3 { margin: 0; font-size: 1.08rem; color: var(--ink); font-weight: 700; letter-spacing: -0.01em; }
+  .phase .dur { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent); font-weight: 600; }
+  .phase.gate .dur { color: var(--warn); }
+  .phase ul { margin: 4px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .phase li { position: relative; padding-left: 17px; font-size: 0.86rem; color: var(--ink-2); }
+  .phase li::before { content: ""; position: absolute; left: 0; top: 8px; width: 6px; height: 6px; border-radius: 50%;
+                      background: var(--accent); opacity: 0.55; }
+  .phase.gate li::before { background: var(--warn); opacity: 0.75; }
+  .weight { height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; margin-top: auto; }
+  .weight > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+  .phase.gate .weight > i { background: var(--warn); }
+
+  /* Two-col */
+  .cols { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 22px; }
+  @media (max-width: 860px) { .cols { grid-template-columns: 1fr; } }
+
+  /* Feature grid */
+  .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  @media (max-width: 480px) { .features { grid-template-columns: 1fr; } }
+  .feat { padding: 15px 16px; border-radius: var(--radius-sm); background: var(--surface-2); border: 1px solid transparent; }
+  .feat .ft { color: var(--ink); font-weight: 640; font-size: 0.95rem; }
+  .feat .fd { color: var(--ink-3); font-size: 0.82rem; margin-top: 3px; }
+
+  /* Domain chips */
+  .domains { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font-size: 0.82rem; padding: 6px 11px; border-radius: 8px; background: var(--surface-2);
+          color: var(--ink-2); border: 1px solid var(--border); }
+  .chip.plus { background: var(--accent-soft); color: var(--accent); border-color: transparent; font-family: var(--font-mono); font-size: 0.76rem; }
+
+  .pad { padding: 22px; }
+  .pad h3.ct { margin: 0 0 14px; font-size: 1rem; color: var(--ink); font-weight: 680; }
+
+  /* Blockers */
+  .risk { display: flex; flex-direction: column; gap: 12px; }
+  .risk-item { display: grid; grid-template-columns: auto 1fr; gap: 14px; padding: 16px; border-radius: var(--radius-sm);
+               background: var(--bad-soft); border: 1px solid color-mix(in srgb, var(--bad) 30%, transparent); }
+  .rcode { font-family: var(--font-mono); font-weight: 700; color: var(--bad); font-size: 0.9rem; }
+  .risk-item .rt { color: var(--ink); font-weight: 640; font-size: 0.92rem; }
+  .risk-item .rd { color: var(--ink-2); font-size: 0.85rem; margin-top: 3px; }
+  .risk-item.ok { background: var(--good-soft); border-color: color-mix(in srgb, var(--good) 28%, transparent); }
+  .risk-item.ok .rcode { color: var(--good); }
+  .rfix { margin-top: 6px; font-size: 0.82rem; color: var(--good); font-weight: 600; }
+  .gate-note { margin-top: 14px; padding: 14px 16px; border-radius: var(--radius-sm); background: var(--warn-soft);
+               border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent); color: var(--ink-2); font-size: 0.88rem; }
+  .gate-note b { color: var(--warn); }
+
+  /* Checklist */
+  .check-group { margin-bottom: 18px; }
+  .check-group:last-child { margin-bottom: 0; }
+  .cg-label { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+              color: var(--ink-3); margin-bottom: 8px; }
+  .check { display: flex; align-items: flex-start; gap: 11px; padding: 8px 0; cursor: pointer; font-size: 0.9rem; color: var(--ink-2); }
+  .check input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .box { flex: 0 0 18px; width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--border-strong);
+         margin-top: 2px; display: grid; place-items: center; transition: background .15s, border-color .15s; }
+  .box svg { width: 11px; height: 11px; opacity: 0; transform: scale(.6); transition: opacity .15s, transform .15s; }
+  .check input:checked ~ .box { background: var(--good); border-color: var(--good); }
+  .check input:checked ~ .box svg { opacity: 1; transform: scale(1); }
+  .check input:checked ~ .ctext { color: var(--ink-3); text-decoration: line-through; text-decoration-color: var(--ink-3); }
+  .check input:focus-visible ~ .box { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .ctext { flex: 1; }
+  .progress-line { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-3); margin-top: 4px; }
+  .progress-line b { color: var(--good); font-variant-numeric: tabular-nums; }
+
+  /* Security */
+  .sec-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { .sec-cols { grid-template-columns: 1fr; } }
+  .safe { padding: 15px 16px; border-radius: var(--radius-sm); background: var(--good-soft); border: 1px solid color-mix(in srgb, var(--good) 26%, transparent); }
+  .danger { padding: 15px 16px; border-radius: var(--radius-sm); background: var(--bad-soft); border: 1px solid color-mix(in srgb, var(--bad) 26%, transparent); }
+  .safe .h, .danger .h { font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+  .safe .h { color: var(--good); }
+  .danger .h { color: var(--bad); }
+  .safe ul, .danger ul { margin: 0; padding-left: 16px; font-size: 0.85rem; color: var(--ink-2); display: flex; flex-direction: column; gap: 4px; }
+  code { font-family: var(--font-mono); font-size: 0.85em; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; color: var(--ink); }
+
+  /* Docs map */
+  .docs { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+  .doc { display: flex; align-items: baseline; gap: 11px; padding: 13px 15px; border-radius: var(--radius-sm);
+         background: var(--surface); border: 1px solid var(--border); }
+  .doc .num { font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent); font-weight: 700; }
+  .doc .dn { color: var(--ink); font-weight: 600; font-size: 0.9rem; }
+  .doc .dp { font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink-3); margin-top: 2px; }
+
+  footer { padding: 34px 0 60px; border-top: 1px solid var(--border); color: var(--ink-3); font-size: 0.85rem; }
+  .mono { font-family: var(--font-mono); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+
+<div class="topbar">
+  <div class="wrap topbar-in">
+    <div class="brand"><span class="glyph">FE</span><span>Interview&nbsp;Prep</span></div>
+    <button class="theme-btn" id="themeToggle" aria-label="Đổi giao diện sáng/tối"><span id="themeIcon">◐</span><span id="themeLabel">Theme</span></button>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="kicker">Kế hoạch dự án · v1 · 2026-07-11</div>
+    <h1>Nền tảng luyện phỏng vấn Front-end, junior đến senior.</h1>
+    <p class="lead">Ngân hàng câu hỏi có giải thích, quiz chấm điểm tức thì và flashcard ôn tập ngắt quãng — nội dung <b>song ngữ Việt–Anh</b>, giữ nguyên thuật ngữ tiếng Anh. Kiến trúc chuẩn senior, dựng để mở rộng.</p>
+    <div class="pills">
+      <span class="pill"><span class="dot"></span>Trạng thái: Phase 0 — ready to build</span>
+      <span class="pill done">Reconcile Gate ✓ PASSED · 17 issue đã fix</span>
+      <span class="pill">Next.js · Supabase · Vercel</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="n">22</div><div class="l">nhóm kiến thức</div></div>
+      <div class="stat"><div class="n">4<span>+1</span></div><div class="l">phase + gate chốt</div></div>
+      <div class="stat"><div class="n">11</div><div class="l">tài liệu kế hoạch</div></div>
+      <div class="stat"><div class="n">~5</div><div class="l">bước setup thủ công</div></div>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head"><div class="kicker">Công nghệ</div><h2>Tech stack đã chốt</h2></div>
+    <div class="stack">
+      <div class="tech"><div class="role">Framework</div><div class="name">Next.js 15</div><div class="sub">App Router · RSC</div></div>
+      <div class="tech"><div class="role">Ngôn ngữ</div><div class="name">TypeScript</div><div class="sub">strict mode</div></div>
+      <div class="tech"><div class="role">Styling</div><div class="name">Tailwind CSS</div><div class="sub">+ shadcn/ui</div></div>
+      <div class="tech"><div class="role">State</div><div class="name">Zustand</div><div class="sub">slices · persist</div></div>
+      <div class="tech"><div class="role">Backend</div><div class="name">Supabase</div><div class="sub">Postgres · Auth · RLS</div></div>
+      <div class="tech"><div class="role">Source</div><div class="name">GitHub</div><div class="sub">main + develop</div></div>
+      <div class="tech"><div class="role">Deploy · CI/CD</div><div class="name">Vercel</div><div class="sub">preview mỗi PR</div></div>
+      <div class="tech"><div class="role">Auth</div><div class="name">Google + Email</div><div class="sub">qua Supabase Auth</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><div class="kicker">Lộ trình</div><h2>Roadmap theo phase</h2>
+      <p>Đường tới hạn: Phase 0 → <b>Reconcile Gate</b> (bắt buộc) → Phase 1. Cuộn ngang để xem đủ 5 mốc.</p></div>
+    <div class="rail">
+      <div class="phase">
+        <div class="ptag">Phase 0</div><h3>Khởi tạo</h3><div class="dur">~1 tuần</div>
+        <ul><li>Repo + Next.js + TS strict</li><li>Tailwind + shadcn + Zustand</li><li>Cây thư mục chuẩn</li><li>Supabase project + env</li><li>CI/CD Vercel</li></ul>
+        <div class="weight"><i style="width:30%"></i></div>
+      </div>
+      <div class="phase gate">
+        <div class="ptag">🚦 Gate · ✓ PASSED</div><h3>Reconcile</h3><div class="dur">đã xong · 2026-07-11</div>
+        <ul><li>✓ Schema thống nhất (docs/08)</li><li>✓ Đóng R1/R2/R3 + 17 issue</li><li>✓ Cây thư mục chốt (docs/09)</li><li>✓ Sẵn sàng gen types</li></ul>
+        <div class="weight"><i style="width:100%"></i></div>
+      </div>
+      <div class="phase">
+        <div class="ptag">Phase 1</div><h3>MVP</h3><div class="dur">~4–6 tuần</div>
+        <ul><li>Auth + RLS đầy đủ</li><li>Data model + seed</li><li>Ngân hàng câu hỏi + quiz</li><li>Flashcard SRS + learning path</li><li>Dashboard + Admin CRUD</li></ul>
+        <div class="weight"><i style="width:100%"></i></div>
+      </div>
+      <div class="phase">
+        <div class="ptag">Phase 2</div><h3>Nâng cao</h3><div class="dur">~3–4 tuần</div>
+        <ul><li>Coding challenge (live editor)</li><li>Mock interview</li><li>Gamification đầy đủ</li><li>Notification cho SRS</li></ul>
+        <div class="weight"><i style="width:70%"></i></div>
+      </div>
+      <div class="phase">
+        <div class="ptag">Phase 3</div><h3>Polish & Scale</h3><div class="dur">~2–3 tuần</div>
+        <ul><li>SEO + Analytics</li><li>i18n hoàn chỉnh</li><li>PWA + offline</li><li>Tối ưu performance</li></ul>
+        <div class="weight"><i style="width:45%"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="cols">
+      <div>
+        <div class="sec-head"><div class="kicker">Phạm vi MVP</div><h2>Tính năng cốt lõi</h2></div>
+        <div class="features">
+          <div class="feat"><div class="ft">Ngân hàng câu hỏi</div><div class="fd">Theo chủ đề/cấp độ · search · filter · bookmark · đáp án chi tiết</div></div>
+          <div class="feat"><div class="ft">Quiz chấm điểm</div><div class="fd">Tự chọn chủ đề/độ khó · chấm tức thì · giải thích từng đáp án</div></div>
+          <div class="feat"><div class="ft">Flashcard + SRS</div><div class="fd">Ôn ngắt quãng · "must-know deck" · lịch ôn hằng ngày</div></div>
+          <div class="feat"><div class="ft">Learning Path</div><div class="fd">Lộ trình junior→senior · theo dõi tiến độ từng bước</div></div>
+          <div class="feat"><div class="ft">Dashboard tiến độ</div><div class="fd">Streak · activity log · thống kê quiz/flashcard</div></div>
+          <div class="feat"><div class="ft">Admin CRUD</div><div class="fd">Thêm/sửa/cập nhật nội dung dần theo thời gian</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="sec-head"><div class="kicker">Nội dung</div><h2>Nhóm kiến thức</h2></div>
+        <div class="pad card">
+          <div class="domains">
+            <span class="chip">HTML &amp; Semantic</span><span class="chip">CSS &amp; Layout</span><span class="chip">JavaScript Core</span>
+            <span class="chip">ES6+</span><span class="chip">TypeScript</span><span class="chip">DOM &amp; Browser</span>
+            <span class="chip">Network &amp; Security</span><span class="chip">React</span><span class="chip">Next.js</span>
+            <span class="chip">State Management</span><span class="chip">Web Performance</span><span class="chip">Testing</span>
+            <span class="chip">Build Tools</span><span class="chip">Accessibility</span><span class="chip">Design Patterns</span>
+            <span class="chip">System Design FE</span><span class="chip">DSA cho FE</span><span class="chip">Git &amp; Workflow</span>
+            <span class="chip">Behavioral</span>
+            <span class="chip plus">+ React 19 / Next 15</span><span class="chip plus">+ Forms / RHF</span><span class="chip plus">+ Web Components</span>
+          </div>
+          <div class="progress-line" style="margin-top:16px">Phân cấp 3 tầng · level Junior/Mid/Senior · metadata: <span class="mono">type · tags · frequency · difficulty</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><div class="kicker">Kết quả phản biện · đã đóng</div><h2>3 blocker đã được xử lý ✓</h2>
+      <p>Bước review độc lập phát hiện mâu thuẫn giữa data model, tính năng và taxonomy. Reconcile Gate đã đóng cả 3 + 17 issue do verify (feature / security-RLS / SQL) bắt được.</p></div>
+    <div class="risk">
+      <div class="risk-item ok"><div class="rcode">R1</div><div><div class="rt">Data model chưa chạy được 2 tính năng must-have</div><div class="rd">Custom quiz vướng <code>quiz_id NOT NULL</code>; learning-path progress chưa có bảng.</div><div class="rfix">✓ Gộp <code>quiz_attempts</code> (quiz_set_id nullable + config jsonb) + thêm bảng mới <code>learning_path_progress</code>.</div></div></div>
+      <div class="risk-item ok"><div class="rcode">R2</div><div><div class="rt">Chưa có "single source of truth" cho schema</div><div class="rd">Tên bảng lệch: <code>flashcards</code> vs <code>flashcard_reviews</code>, <code>quiz_sessions</code> vs <code>quiz_attempts</code>…</div><div class="rfix">✓ Chốt một bộ tên canonical duy nhất trong docs/08 — không còn tên lệch.</div></div></div>
+      <div class="risk-item ok"><div class="rcode">R3</div><div><div class="rt">Enum xung đột với taxonomy</div><div class="rd">Mất phân loại theory/coding/…; chưa tách <code>level</code> khỏi <code>difficulty</code>; thiếu <code>frequency</code>.</div><div class="rfix">✓ Tách 3 trục: <code>question_type</code> · <code>level</code> · <code>difficulty</code>/<code>frequency</code> (1–5) → dựng "must-know deck".</div></div></div>
+    </div>
+    <div class="gate-note">✅ <b>Reconcile Gate: PASSED (2026-07-11).</b> Nguồn chân lý build: <span class="mono">08-RECONCILED-SCHEMA.md</span> (schema + types) · <span class="mono">09-RECONCILED-ARCHITECTURE.md</span> (cây thư mục) · nhật ký chốt <span class="mono">10-RECONCILE-GATE-RESOLUTION.md</span>.</div>
+  </section>
+
+  <section>
+    <div class="cols">
+      <div>
+        <div class="sec-head"><div class="kicker">Việc của bạn</div><h2>Checklist bước thủ công</h2>
+          <p>Các bước cần tài khoản của bạn (Claude không thao tác hộ được). Tick để theo dõi — trạng thái lưu trên trình duyệt này.</p></div>
+        <div class="pad card">
+          <div class="check-group">
+            <div class="cg-label">A · GitHub</div>
+            <label class="check"><input type="checkbox" data-k="gh1"><span class="box"><svg viewBox="0 0 12 12"><path d="M1 6l3.2 3.5L11 2" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="ctext">Tạo repository + thêm <code>.gitignore</code></span></label>
+            <label class="check"><input type="checkbox" data-k="gh2"><span class="box"><svg viewBox="0 0 12 12"><path d="M1 6l3.2 3.5L11 2" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="ctext">Bật branch protection cho <code>main</code></span></label>
+          </div>
+          <div class="check-group">
+            <div class="cg-label">B · Google OAuth</div>
+            <label class="check"><input type="checkbox" data-k="go1"><span class="box"><svg viewBox="0 0 12 12"><path d="M1 6l3.2 3.5L11 2" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="ctext">Tạo OAuth consent screen + Client ID</span></label>
+            <label class="check"><input type="checkbox" data-k="go2"><span class="box"><svg viewBox="0 0 12 12"><path d="M1 6l3.2 3.5L11 2" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="ctext">Thêm redirect URI trỏ tới Supabase callback</span></label>
+          </div>
+          <div class="check-group">
+            <div class="cg-label">C · Supabase</div>
+            <label class="check"><input type="checkbox" data-k="sb1"><span class="box"><svg viewBox="0 0 12 12"><path d="M1 6l3.2 3.5L11 2" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="ctext">Tạo project (region Singapore) + lưu keys</span></label>
+            <label class="check"><input type="checkbox" data-k="sb2"><span class="box"><svg viewBox="0 0 12 12"><path d="M1 6l3.2 3.5L11 2" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="ctext">Cài Supabase CLI (scoop bucket) + <code>link</code></span></label>
+            <label class="check"><input type="checkbox" data-k="sb3"><span class="box"><svg viewBox="0 0 12 12"><path d="M1 6l3.2 3.5L11 2" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="ctext">Bật Google provider + dán Client ID/Secret</span></label>
+          </div>
+          <div class="check-group">
+            <div class="cg-label">D · Vercel + Env</div>
+            <label class="check"><input type="checkbox" data-k="vc1"><span class="box"><svg viewBox="0 0 12 12"><path d="M1 6l3.2 3.5L11 2" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="ctext">Import repo + set Environment Variables</span></label>
+            <label class="check"><input type="checkbox" data-k="vc2"><span class="box"><svg viewBox="0 0 12 12"><path d="M1 6l3.2 3.5L11 2" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="ctext">Cập nhật callback URL production về Supabase</span></label>
+          </div>
+          <div class="progress-line">Hoàn thành <b id="progNum">0/9</b> bước thủ công</div>
+        </div>
+      </div>
+      <div>
+        <div class="sec-head"><div class="kicker">Bảo mật</div><h2>Chia sẻ gì với Claude?</h2>
+          <p>Để mình viết migration &amp; code kết nối, bạn chỉ cần gửi thông tin công khai.</p></div>
+        <div class="sec-cols">
+          <div class="safe"><div class="h">✓ An toàn để dán</div>
+            <ul><li>Supabase Project URL</li><li>anon public key</li><li>Vercel production domain</li><li>Google Client ID</li></ul>
+          </div>
+          <div class="danger"><div class="h">✕ Tuyệt đối không</div>
+            <ul><li><code>service_role</code> key</li><li>Google Client Secret</li><li>Database password</li><li>Bất kỳ <code>*_SECRET</code> nào</li></ul>
+          </div>
+        </div>
+        <div class="gate-note" style="margin-top:12px">Quy tắc vàng: tên biến có <code>SECRET</code> · <code>SERVICE_ROLE</code> · <code>PASSWORD</code> → không vào chat, không commit, không prefix <code>NEXT_PUBLIC_</code>.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><div class="kicker">Tài liệu</div><h2>Bộ 8 tài liệu kế hoạch</h2>
+      <p>Nằm trong <span class="mono">d:\FE_Interview\docs\</span> — bắt đầu từ Master Plan.</p></div>
+    <div class="docs">
+      <div class="doc"><span class="num">00</span><div><div class="dn">Master Plan</div><div class="dp">tầm nhìn · roadmap · gate</div></div></div>
+      <div class="doc"><span class="num">01</span><div><div class="dn">Knowledge Taxonomy</div><div class="dp">cây kiến thức · metadata</div></div></div>
+      <div class="doc"><span class="num">02</span><div><div class="dn">Features &amp; Flows</div><div class="dp">đặc tả · user flow</div></div></div>
+      <div class="doc"><span class="num">03</span><div><div class="dn">Architecture</div><div class="dp">cây thư mục · phân lớp</div></div></div>
+      <div class="doc"><span class="num">04</span><div><div class="dn">Supabase Data Model</div><div class="dp">schema · RLS · migrations</div></div></div>
+      <div class="doc"><span class="num">05</span><div><div class="dn">UI/UX Design System</div><div class="dp">tokens · component · dark</div></div></div>
+      <div class="doc"><span class="num">06</span><div><div class="dn">Setup &amp; Deployment</div><div class="dp">runbook thủ công</div></div></div>
+      <div class="doc"><span class="num">07</span><div><div class="dn">Review Notes</div><div class="dp">blocker · rủi ro</div></div></div>
+      <div class="doc"><span class="num">08</span><div><div class="dn">🔒 Reconciled Schema</div><div class="dp">nguồn chân lý DB + types</div></div></div>
+      <div class="doc"><span class="num">09</span><div><div class="dn">🔒 Reconciled Architecture</div><div class="dp">cây thư mục đã chốt</div></div></div>
+      <div class="doc"><span class="num">10</span><div><div class="dn">📋 Gate Resolution</div><div class="dp">nhật ký chốt R1–R7</div></div></div>
+    </div>
+  </section>
+
+  <footer class="wrap" style="padding-left:0;padding-right:0">
+    FE Interview Prep · bản kế hoạch v1 · tạo 2026-07-11. Chưa có code nghiệp vụ — dừng ở bước plan &amp; hoàn thiện ý tưởng.
+  </footer>
+</div>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var LS = window.localStorage;
+    // Theme
+    var btn = document.getElementById('themeToggle');
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+    function sysDark() { return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches; }
+    function apply(t) {
+      root.setAttribute('data-theme', t);
+      icon.textContent = t === 'dark' ? '☾' : '☀';
+      label.textContent = t === 'dark' ? 'Dark' : 'Light';
+    }
+    var saved = null;
+    try { saved = LS.getItem('fe-theme'); } catch (e) {}
+    apply(saved || (sysDark() ? 'dark' : 'light'));
+    btn.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      apply(next);
+      try { LS.setItem('fe-theme', next); } catch (e) {}
+    });
+    // Checklist persistence + progress
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('.check input[type=checkbox]'));
+    var prog = document.getElementById('progNum');
+    function refresh() {
+      var done = boxes.filter(function (b) { return b.checked; }).length;
+      prog.textContent = done + '/' + boxes.length;
+    }
+    boxes.forEach(function (b) {
+      var key = 'fe-chk-' + b.getAttribute('data-k');
+      try { if (LS.getItem(key) === '1') b.checked = true; } catch (e) {}
+      b.addEventListener('change', function () {
+        try { LS.setItem(key, b.checked ? '1' : '0'); } catch (e) {}
+        refresh();
+      });
+    });
+    refresh();
+  })();
+</script>

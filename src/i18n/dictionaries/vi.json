@@ -1,0 +1,12 @@
+{
+  "app.name": "FE Interview Prep",
+  "app.tagline": "Luyện phỏng vấn Front-end, junior đến senior",
+  "nav.questions": "Câu hỏi",
+  "nav.quiz": "Quiz",
+  "nav.flashcards": "Flashcard",
+  "nav.learningPath": "Lộ trình",
+  "nav.dashboard": "Tiến độ",
+  "action.login": "Đăng nhập",
+  "action.logout": "Đăng xuất",
+  "theme.toggle": "Đổi giao diện"
+}

@@ -1,0 +1,12 @@
+{
+  "app.name": "FE Interview Prep",
+  "app.tagline": "Front-end interview prep, junior to senior",
+  "nav.questions": "Questions",
+  "nav.quiz": "Quiz",
+  "nav.flashcards": "Flashcards",
+  "nav.learningPath": "Learning Path",
+  "nav.dashboard": "Dashboard",
+  "action.login": "Log in",
+  "action.logout": "Log out",
+  "theme.toggle": "Toggle theme"
+}
