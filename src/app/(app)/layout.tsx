@@ -1,10 +1,16 @@
 import Link from "next/link";
 
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { buttonVariants } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
 import { ROUTES } from "@/constants/routes";
+import { authApi, UserMenu } from "@/features/auth";
+import { createClient } from "@/lib/supabase/server";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const supabase = await createClient();
+  const user = await authApi.getUser(supabase);
+
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="bg-background/80 sticky top-0 z-20 border-b backdrop-blur-sm">
@@ -19,6 +25,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             >
               Câu hỏi
             </Link>
+            {user ? (
+              <>
+                <Link
+                  href={ROUTES.DASHBOARD}
+                  className="text-muted-foreground hover:text-foreground rounded-md px-3 py-2 text-sm transition-colors"
+                >
+                  Tiến độ
+                </Link>
+                <UserMenu email={user.email ?? ""} />
+              </>
+            ) : (
+              <Link href={ROUTES.LOGIN} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                Đăng nhập
+              </Link>
+            )}
             <ThemeToggle />
           </nav>
         </div>

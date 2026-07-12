@@ -11,11 +11,18 @@ const clientEnvSchema = z.object({
     .min(1, "Thiếu NEXT_PUBLIC_SUPABASE_URL")
     .startsWith("https://", "NEXT_PUBLIC_SUPABASE_URL phải bắt đầu bằng https://"),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1, "Thiếu NEXT_PUBLIC_SUPABASE_ANON_KEY"),
+  // URL gốc TIN CẬY của app (chống host-header injection ở link xác nhận email).
+  // Optional cho dev; NÊN set ở production (Vercel) và dev (http://localhost:3000).
+  NEXT_PUBLIC_SITE_URL: z
+    .string()
+    .startsWith("http", "NEXT_PUBLIC_SITE_URL phải là URL http(s)")
+    .optional(),
 });
 
 export const clientEnv = clientEnvSchema.parse({
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
 });
 
 const serverEnvSchema = z.object({

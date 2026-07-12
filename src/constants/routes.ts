@@ -3,6 +3,7 @@
 export const ROUTES = {
   HOME: "/",
   LOGIN: "/login",
+  SIGNUP: "/signup",
   AUTH_CALLBACK: "/auth/callback",
 
   QUESTIONS: "/questions",
@@ -25,15 +26,23 @@ export const ROUTES = {
   ADMIN_QUESTIONS: "/admin/questions",
 } as const;
 
-/** Các route yêu cầu đăng nhập (dùng ở middleware). */
+/**
+ * Route yêu cầu đăng nhập (dùng ở proxy guard).
+ * LƯU Ý: /questions, /learning-path là Public* (xem được không cần login — docs/02) nên KHÔNG nằm đây.
+ */
 export const PROTECTED_PREFIXES = [
-  "/questions",
+  "/dashboard",
+  "/bookmarks",
   "/quiz",
   "/flashcards",
-  "/learning-path",
-  "/dashboard",
+  "/review",
+  "/profile",
+  "/settings",
   "/admin",
 ] as const;
+
+/** Route chỉ dành cho khách chưa đăng nhập (đã login thì redirect về dashboard). */
+export const GUEST_ONLY_PREFIXES = ["/login", "/signup"] as const;
 
 /** Route chỉ dành cho admin. */
 export const ADMIN_PREFIX = "/admin";
