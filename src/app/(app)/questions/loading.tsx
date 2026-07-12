@@ -7,6 +7,17 @@ export default function Loading() {
         <Skeleton className="h-8 w-56" />
         <Skeleton className="h-4 w-80" />
       </div>
+
+      {/* filter bar */}
+      <div className="space-y-3">
+        <Skeleton className="h-9 w-full" />
+        <div className="flex flex-wrap gap-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-8 w-36" />
+          ))}
+        </div>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
           <Skeleton key={i} className="h-44 rounded-xl" />

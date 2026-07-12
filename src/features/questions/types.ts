@@ -3,6 +3,9 @@ import type { Enums, Tables } from "@/types/db";
 export type QuestionLevel = Enums<"level">;
 export type QuestionKind = Enums<"question_type">;
 
+/** Cách sắp xếp danh sách câu hỏi. */
+export type QuestionSort = "popular" | "difficulty-asc" | "difficulty-desc" | "newest";
+
 /** Category rút gọn (nhúng qua topic). */
 export interface QuestionCategoryRef {
   name: string;
@@ -35,9 +38,20 @@ export type QuestionDetail = Tables<"questions"> & {
   tags: { name: string; slug: string }[];
 };
 
+/** Option category cho bộ lọc. */
+export interface CategoryOption {
+  id: string;
+  slug: string;
+  name: string;
+  color: string | null;
+}
+
+/** Bộ lọc (đã validate) truyền vào tầng api. Filter cộng dồn (AND). */
 export interface QuestionFilters {
+  search?: string;
   level?: QuestionLevel;
   type?: QuestionKind;
+  categorySlug?: string;
   topicId?: string;
-  search?: string;
+  sort?: QuestionSort;
 }

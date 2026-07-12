@@ -3,12 +3,20 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { PAGINATION } from "@/constants/config";
 import type { Database } from "@/lib/supabase/database.types";
 import type { Tables } from "@/types/db";
-import type { QuestionDetail, QuestionFilters, QuestionListItem } from "../types";
+import { DEFAULT_SORT } from "../constants";
+import type {
+  CategoryOption,
+  QuestionDetail,
+  QuestionFilters,
+  QuestionListItem,
+} from "../types";
 
 type Client = SupabaseClient<Database>;
 
+// topics!inner / categories!inner: topic_id & category_id đều NOT NULL nên inner không loại bớt hàng,
+// đồng thời cho phép filter theo topics.categories.slug.
 const LIST_SELECT =
-  "id, slug, prompt_md, type, level, difficulty, frequency, topics(name, slug, categories(name, slug, color))";
+  "id, slug, prompt_md, type, level, difficulty, frequency, topics!inner(name, slug, categories!inner(name, slug, color))";
 
 type ListRaw = Pick<
   Tables<"questions">,
@@ -36,23 +44,37 @@ type DetailRaw = Tables<"questions"> & {
 
 /** Ranh giới data-access DUY NHẤT của domain questions. */
 export const questionsApi = {
-  /** Danh sách câu hỏi đã publish, lọc theo level/type/topic/search. */
+  /** Danh sách câu hỏi đã publish theo bộ lọc (AND) + sort + FTS search. */
   async list(client: Client, filters: QuestionFilters = {}): Promise<QuestionListItem[]> {
-    let query = client
+    // Giai đoạn filter (PostgrestFilterBuilder) — mọi .eq/.is/.textSearch nằm ở đây.
+    let filtered = client
       .from("questions")
       .select(LIST_SELECT)
       .eq("is_published", true)
-      .is("deleted_at", null)
-      .order("frequency", { ascending: false })
-      .order("created_at", { ascending: true })
-      .limit(PAGINATION.DEFAULT_PAGE_SIZE);
+      .is("deleted_at", null);
 
-    if (filters.level) query = query.eq("level", filters.level);
-    if (filters.type) query = query.eq("type", filters.type);
-    if (filters.topicId) query = query.eq("topic_id", filters.topicId);
-    if (filters.search) query = query.ilike("prompt_md", `%${filters.search}%`);
+    if (filters.level) filtered = filtered.eq("level", filters.level);
+    if (filters.type) filtered = filtered.eq("type", filters.type);
+    if (filters.topicId) filtered = filtered.eq("topic_id", filters.topicId);
+    if (filters.categorySlug) filtered = filtered.eq("topics.categories.slug", filters.categorySlug);
+    if (filters.search) {
+      filtered = filtered.textSearch("search", filters.search, { type: "websearch", config: "simple" });
+    }
 
-    const { data, error } = await query.returns<ListRaw[]>();
+    // Giai đoạn transform (order) — trả builder khác, nên tách sang biến mới.
+    const sort = filters.sort ?? DEFAULT_SORT;
+    const ordered =
+      sort === "difficulty-asc"
+        ? filtered.order("difficulty", { ascending: true }).order("frequency", { ascending: false })
+        : sort === "difficulty-desc"
+          ? filtered.order("difficulty", { ascending: false }).order("frequency", { ascending: false })
+          : sort === "newest"
+            ? filtered.order("created_at", { ascending: false })
+            : filtered.order("frequency", { ascending: false }).order("created_at", { ascending: true });
+
+    const { data, error } = await ordered
+      .limit(PAGINATION.DEFAULT_PAGE_SIZE)
+      .returns<ListRaw[]>();
     if (error) throw new Error(error.message);
 
     return (data ?? []).map((row) => ({
@@ -67,6 +89,19 @@ export const questionsApi = {
         ? { name: row.topics.name, slug: row.topics.slug, category: row.topics.categories }
         : null,
     }));
+  },
+
+  /** Danh sách category (option cho bộ lọc). */
+  async listCategories(client: Client): Promise<CategoryOption[]> {
+    const { data, error } = await client
+      .from("categories")
+      .select("id, slug, name, color")
+      .eq("is_published", true)
+      .is("deleted_at", null)
+      .order("sort_order", { ascending: true })
+      .returns<CategoryOption[]>();
+    if (error) throw new Error(error.message);
+    return data ?? [];
   },
 
   /** Chi tiết 1 câu hỏi theo slug (null nếu không tồn tại / chưa publish). */
@@ -90,7 +125,9 @@ export const questionsApi = {
       topic: topics
         ? { name: topics.name, slug: topics.slug, level: topics.level, category: topics.categories }
         : null,
-      tags: question_tags.map((qt) => qt.tags).filter((t): t is { name: string; slug: string } => t !== null),
+      tags: question_tags
+        .map((qt) => qt.tags)
+        .filter((t): t is { name: string; slug: string } => t !== null),
     };
   },
 };
