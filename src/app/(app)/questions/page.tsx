@@ -64,7 +64,7 @@ export default async function QuestionsPage({ searchParams }: PageProps) {
           <EmptyState
             icon={FileQuestion}
             title="Chưa có câu hỏi nào"
-            description="Chạy file supabase/seed-content.sql trong SQL Editor để thêm câu hỏi mẫu."
+            description="Chạy file supabase/seeds/01_content.sql trong SQL Editor để thêm câu hỏi mẫu."
           />
         )
       ) : (

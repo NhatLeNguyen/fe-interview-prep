@@ -27,6 +27,21 @@ type ListRaw = Pick<
     | null;
 };
 
+function toListItem(row: ListRaw): QuestionListItem {
+  return {
+    id: row.id,
+    slug: row.slug,
+    prompt_md: row.prompt_md,
+    type: row.type,
+    level: row.level,
+    difficulty: row.difficulty,
+    frequency: row.frequency,
+    topic: row.topics
+      ? { name: row.topics.name, slug: row.topics.slug, category: row.topics.categories }
+      : null,
+  };
+}
+
 const DETAIL_SELECT =
   "*, topics(name, slug, level, categories(name, slug, color)), question_tags(tags(name, slug))";
 
@@ -46,7 +61,6 @@ type DetailRaw = Tables<"questions"> & {
 export const questionsApi = {
   /** Danh sách câu hỏi đã publish theo bộ lọc (AND) + sort + FTS search. */
   async list(client: Client, filters: QuestionFilters = {}): Promise<QuestionListItem[]> {
-    // Giai đoạn filter (PostgrestFilterBuilder) — mọi .eq/.is/.textSearch nằm ở đây.
     let filtered = client
       .from("questions")
       .select(LIST_SELECT)
@@ -61,7 +75,6 @@ export const questionsApi = {
       filtered = filtered.textSearch("search", filters.search, { type: "websearch", config: "simple" });
     }
 
-    // Giai đoạn transform (order) — trả builder khác, nên tách sang biến mới.
     const sort = filters.sort ?? DEFAULT_SORT;
     const ordered =
       sort === "difficulty-asc"
@@ -72,23 +85,9 @@ export const questionsApi = {
             ? filtered.order("created_at", { ascending: false })
             : filtered.order("frequency", { ascending: false }).order("created_at", { ascending: true });
 
-    const { data, error } = await ordered
-      .limit(PAGINATION.DEFAULT_PAGE_SIZE)
-      .returns<ListRaw[]>();
+    const { data, error } = await ordered.limit(PAGINATION.DEFAULT_PAGE_SIZE).returns<ListRaw[]>();
     if (error) throw new Error(error.message);
-
-    return (data ?? []).map((row) => ({
-      id: row.id,
-      slug: row.slug,
-      prompt_md: row.prompt_md,
-      type: row.type,
-      level: row.level,
-      difficulty: row.difficulty,
-      frequency: row.frequency,
-      topic: row.topics
-        ? { name: row.topics.name, slug: row.topics.slug, category: row.topics.categories }
-        : null,
-    }));
+    return (data ?? []).map(toListItem);
   },
 
   /** Danh sách category (option cho bộ lọc). */
@@ -102,6 +101,30 @@ export const questionsApi = {
       .returns<CategoryOption[]>();
     if (error) throw new Error(error.message);
     return data ?? [];
+  },
+
+  /** Câu hỏi user đã bookmark (mới nhất trước). */
+  async listBookmarked(client: Client, userId: string): Promise<QuestionListItem[]> {
+    const { data, error } = await client
+      .from("bookmarks")
+      .select(`questions!inner(${LIST_SELECT})`)
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .returns<{ questions: ListRaw }[]>();
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((row) => toListItem(row.questions));
+  },
+
+  /** 1 câu hỏi có được user bookmark không. */
+  async isBookmarked(client: Client, userId: string, questionId: string): Promise<boolean> {
+    const { data, error } = await client
+      .from("bookmarks")
+      .select("question_id")
+      .eq("user_id", userId)
+      .eq("question_id", questionId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return data !== null;
   },
 
   /** Chi tiết 1 câu hỏi theo slug (null nếu không tồn tại / chưa publish). */

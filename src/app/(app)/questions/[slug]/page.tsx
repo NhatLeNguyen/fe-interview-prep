@@ -7,7 +7,8 @@ import { LevelBadge } from "@/components/common/level-badge";
 import { Badge } from "@/components/ui/badge";
 import { QUESTION_TYPE_LABELS } from "@/constants/taxonomy";
 import { ROUTES } from "@/constants/routes";
-import { questionsApi } from "@/features/questions";
+import { authApi } from "@/features/auth";
+import { BookmarkButton, questionsApi } from "@/features/questions";
 import { createClient } from "@/lib/supabase/server";
 
 interface PageProps {
@@ -21,9 +22,12 @@ export default async function QuestionDetailPage({ params }: PageProps) {
 
   if (!question) notFound();
 
+  const user = await authApi.getUser(supabase);
+  const bookmarked = user ? await questionsApi.isBookmarked(supabase, user.id, question.id) : false;
+
   return (
     <article className="mx-auto max-w-3xl space-y-8">
-      <div>
+      <div className="flex items-center justify-between gap-3">
         <Link
           href={ROUTES.QUESTIONS}
           className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm transition-colors"
@@ -31,6 +35,11 @@ export default async function QuestionDetailPage({ params }: PageProps) {
           <ArrowLeft className="size-4" />
           Ngân hàng câu hỏi
         </Link>
+        <BookmarkButton
+          questionId={question.id}
+          initialBookmarked={bookmarked}
+          isAuthenticated={Boolean(user)}
+        />
       </div>
 
       <header className="space-y-4">

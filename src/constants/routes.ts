@@ -21,6 +21,7 @@ export const ROUTES = {
   LEARNING_PATH_DETAIL: (pathSlug: string) => `/learning-path/${pathSlug}`,
 
   DASHBOARD: "/dashboard",
+  BOOKMARKS: "/bookmarks",
 
   ADMIN: "/admin",
   ADMIN_QUESTIONS: "/admin/questions",
