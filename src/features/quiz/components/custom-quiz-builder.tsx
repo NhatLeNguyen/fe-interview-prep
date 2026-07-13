@@ -32,7 +32,7 @@ export function CustomQuizBuilder({ categories }: { categories: CategoryOption[]
         <div className="space-y-2">
           <Label>Chủ đề</Label>
           <Select name="category" defaultValue={QUIZ_ALL}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full" aria-label="Chủ đề">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -49,7 +49,7 @@ export function CustomQuizBuilder({ categories }: { categories: CategoryOption[]
         <div className="space-y-2">
           <Label>Cấp độ</Label>
           <Select name="level" defaultValue={QUIZ_ALL}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full" aria-label="Cấp độ">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -66,7 +66,7 @@ export function CustomQuizBuilder({ categories }: { categories: CategoryOption[]
         <div className="space-y-2">
           <Label>Số câu</Label>
           <Select name="count" defaultValue={String(QUIZ_DEFAULT_COUNT)}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full" aria-label="Số câu">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

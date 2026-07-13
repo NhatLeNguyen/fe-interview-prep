@@ -45,7 +45,7 @@ export function QuestionForm({
         <div className="space-y-2">
           <Label>Chủ đề *</Label>
           <Select name="topic_id" defaultValue={q?.topic_id ?? undefined}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full" aria-label="Chủ đề">
               <SelectValue placeholder="Chọn chủ đề" />
             </SelectTrigger>
             <SelectContent>
@@ -61,7 +61,7 @@ export function QuestionForm({
         <div className="space-y-2">
           <Label>Dạng *</Label>
           <Select name="type" defaultValue={q?.type ?? "theory"}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full" aria-label="Dạng câu hỏi">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -77,7 +77,7 @@ export function QuestionForm({
         <div className="space-y-2">
           <Label>Cấp độ *</Label>
           <Select name="level" defaultValue={q?.level ?? "junior"}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full" aria-label="Cấp độ">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -94,7 +94,7 @@ export function QuestionForm({
           <div className="space-y-2">
             <Label>Độ khó</Label>
             <Select name="difficulty" defaultValue={String(q?.difficulty ?? 1)}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full" aria-label="Độ khó">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -109,7 +109,7 @@ export function QuestionForm({
           <div className="space-y-2">
             <Label>Độ phổ biến</Label>
             <Select name="frequency" defaultValue={String(q?.frequency ?? 1)}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full" aria-label="Độ phổ biến">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -166,9 +166,9 @@ export function QuestionForm({
       <fieldset className="space-y-3 rounded-lg border p-4">
         <legend className="text-muted-foreground px-1 text-xs">Chỉ dùng khi Dạng = Trắc nghiệm (quiz)</legend>
         <div className="space-y-2">
-          <Label>Answer format</Label>
+          <Label>Định dạng đáp án</Label>
           <Select name="answer_format" defaultValue={q?.answer_format ?? "single_choice"}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full" aria-label="Định dạng đáp án">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

@@ -32,6 +32,9 @@ export default async function QuizResultPage({ params }: PageProps) {
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <header className="flex flex-col items-center gap-2 text-center">
+        <h1 className="text-muted-foreground text-sm font-medium tracking-wide uppercase">
+          Kết quả quiz
+        </h1>
         <p className="text-primary text-5xl font-bold tracking-tight">{attempt.score ?? 0}%</p>
         <p className="text-muted-foreground">
           Đúng {attempt.correct_count ?? 0}/{attempt.total_questions ?? items.length} câu

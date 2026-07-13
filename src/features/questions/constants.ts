@@ -6,6 +6,7 @@ export const QUESTION_PARAM = {
   level: "level",
   type: "type",
   category: "category",
+  topic: "topic",
   sort: "sort",
 } as const;
 

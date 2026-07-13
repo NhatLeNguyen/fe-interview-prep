@@ -53,5 +53,6 @@ export interface QuestionFilters {
   type?: QuestionKind;
   categorySlug?: string;
   topicId?: string;
+  topicSlug?: string;
   sort?: QuestionSort;
 }

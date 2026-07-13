@@ -20,13 +20,14 @@ export function QuestionRowActions({ id, isPublished }: { id: string; isPublishe
 
   return (
     <div className="flex flex-col items-end gap-1">
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2">
         <Button
           type="button"
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           disabled={pending}
           title={isPublished ? "Ẩn (unpublish)" : "Publish"}
+          aria-label={isPublished ? "Ẩn câu hỏi" : "Publish câu hỏi"}
           onClick={() => run(() => togglePublish(id, !isPublished))}
         >
           {isPublished ? <Eye className="size-4" /> : <EyeOff className="size-4 opacity-50" />}
@@ -34,9 +35,10 @@ export function QuestionRowActions({ id, isPublished }: { id: string; isPublishe
         <Button
           type="button"
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           disabled={pending}
           title="Xoá mềm"
+          aria-label="Xoá câu hỏi"
           onClick={() => {
             if (window.confirm("Xoá câu hỏi này? (xoá mềm, có thể khôi phục ở DB)")) {
               run(() => deleteQuestion(id));

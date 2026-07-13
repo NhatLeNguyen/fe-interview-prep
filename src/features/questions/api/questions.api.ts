@@ -70,6 +70,7 @@ export const questionsApi = {
     if (filters.level) filtered = filtered.eq("level", filters.level);
     if (filters.type) filtered = filtered.eq("type", filters.type);
     if (filters.topicId) filtered = filtered.eq("topic_id", filters.topicId);
+    if (filters.topicSlug) filtered = filtered.eq("topics.slug", filters.topicSlug);
     if (filters.categorySlug) filtered = filtered.eq("topics.categories.slug", filters.categorySlug);
     if (filters.search) {
       filtered = filtered.textSearch("search", filters.search, { type: "websearch", config: "simple" });

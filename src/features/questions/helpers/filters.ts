@@ -31,11 +31,14 @@ export function parseQuestionFilters(raw: RawSearchParams): QuestionFilters {
     level: level && LEVEL_SET.has(level) ? (level as QuestionLevel) : undefined,
     type: type && TYPE_SET.has(type) ? (type as QuestionKind) : undefined,
     categorySlug: first(raw.category),
+    topicSlug: first(raw.topic),
     sort: sort && SORT_SET.has(sort) ? (sort as QuestionSort) : DEFAULT_SORT,
   };
 }
 
 /** Có bộ lọc nào đang active không (bỏ qua sort) — để hiện nút "Xoá bộ lọc" & empty-state phù hợp. */
 export function hasActiveFilters(filters: QuestionFilters): boolean {
-  return Boolean(filters.search || filters.level || filters.type || filters.categorySlug);
+  return Boolean(
+    filters.search || filters.level || filters.type || filters.categorySlug || filters.topicSlug,
+  );
 }

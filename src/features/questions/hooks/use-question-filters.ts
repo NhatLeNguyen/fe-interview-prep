@@ -47,6 +47,7 @@ export function useQuestionFilters() {
       level: searchParams.get(QUESTION_PARAM.level) ?? ALL_VALUE,
       type: searchParams.get(QUESTION_PARAM.type) ?? ALL_VALUE,
       category: searchParams.get(QUESTION_PARAM.category) ?? ALL_VALUE,
+      topic: searchParams.get(QUESTION_PARAM.topic) ?? ALL_VALUE,
       sort: searchParams.get(QUESTION_PARAM.sort) ?? DEFAULT_SORT,
     },
     setSearch: setSearchInput,

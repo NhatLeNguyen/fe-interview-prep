@@ -24,7 +24,8 @@ export function QuestionFilterBar({ categories }: { categories: CategoryOption[]
     Boolean(values.search) ||
     values.level !== ALL_VALUE ||
     values.type !== ALL_VALUE ||
-    values.category !== ALL_VALUE;
+    values.category !== ALL_VALUE ||
+    values.topic !== ALL_VALUE;
 
   return (
     <div className="flex flex-col gap-3">

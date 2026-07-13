@@ -86,7 +86,7 @@ export function ReviewSession({ initialCards }: { initialCards: ReviewCard[] }) 
       ) : null}
 
       {revealed ? (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {REVIEW_GRADES.map((g) => (
             <Button
               key={g.grade}
@@ -94,10 +94,10 @@ export function ReviewSession({ initialCards }: { initialCards: ReviewCard[] }) 
               variant="outline"
               disabled={pending}
               onClick={() => grade(g.grade)}
-              className={cn("h-auto flex-col gap-0.5 py-2", TONE_CLASS[g.tone])}
+              className={cn("h-auto flex-col gap-0.5 py-2 whitespace-normal", TONE_CLASS[g.tone])}
             >
               <span className="font-medium">{g.label}</span>
-              <span className="text-[0.7rem] opacity-70">{g.hint}</span>
+              <span className="text-center text-[0.7rem] opacity-70">{g.hint}</span>
             </Button>
           ))}
         </div>
