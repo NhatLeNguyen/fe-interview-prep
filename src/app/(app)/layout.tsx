@@ -10,6 +10,10 @@ import { createClient } from "@/lib/supabase/server";
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const user = await authApi.getUser(supabase);
+  const isAdmin =
+    user != null &&
+    (await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()).data?.role ===
+      "admin";
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -51,6 +55,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 >
                   Tiến độ
                 </Link>
+                {isAdmin ? (
+                  <Link
+                    href={ROUTES.ADMIN}
+                    className="text-muted-foreground hover:text-foreground rounded-md px-3 py-2 text-sm transition-colors"
+                  >
+                    Admin
+                  </Link>
+                ) : null}
                 <UserMenu email={user.email ?? ""} />
               </>
             ) : (

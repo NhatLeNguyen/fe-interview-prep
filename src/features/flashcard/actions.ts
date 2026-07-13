@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { ROUTES } from "@/constants/routes";
+import { progressApi } from "@/features/progress";
 import {
   NEW_CARD,
   reviewCard,
@@ -96,4 +97,7 @@ export async function gradeCard(questionId: string, grade: number): Promise<void
     prev_state: state?.state ?? null,
     new_state: result.state,
   });
+
+  // Ghi activity (streak) — best-effort.
+  await progressApi.logActivity(supabase, user.id, "review", questionId).catch(() => {});
 }

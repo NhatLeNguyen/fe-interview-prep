@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { ROUTES } from "@/constants/routes";
 import { LEVELS } from "@/constants/taxonomy";
+import { progressApi } from "@/features/progress";
 import { shuffle } from "@/helpers/array";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -111,6 +112,9 @@ export async function submitQuiz(attemptId: string, selections: QuizSelection[])
     .eq("id", attemptId)
     .eq("user_id", user.id); // defense-in-depth (đã verify ownership ở trên)
   if (updateErr) redirect(`${ROUTES.QUIZ}?error=submit`);
+
+  // Ghi activity (streak) — best-effort, không chặn luồng.
+  await progressApi.logActivity(supabase, user.id, "quiz", attemptId).catch(() => {});
 
   revalidatePath(ROUTES.QUIZ_RESULT(attemptId));
   redirect(ROUTES.QUIZ_RESULT(attemptId));
