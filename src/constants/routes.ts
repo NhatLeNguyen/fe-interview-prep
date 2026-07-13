@@ -16,6 +16,7 @@ export const ROUTES = {
   QUIZ_RESULT: (attemptId: string) => `/quiz/${attemptId}/result`,
 
   FLASHCARDS: "/flashcards",
+  REVIEW: "/review",
 
   LEARNING_PATH: "/learning-path",
   LEARNING_PATH_DETAIL: (pathSlug: string) => `/learning-path/${pathSlug}`,

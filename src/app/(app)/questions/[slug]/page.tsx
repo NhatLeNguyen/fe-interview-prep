@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { QUESTION_TYPE_LABELS } from "@/constants/taxonomy";
 import { ROUTES } from "@/constants/routes";
 import { authApi } from "@/features/auth";
+import { AddFlashcardButton, flashcardApi } from "@/features/flashcard";
 import { BookmarkButton, questionsApi } from "@/features/questions";
 import { createClient } from "@/lib/supabase/server";
 
@@ -23,7 +24,12 @@ export default async function QuestionDetailPage({ params }: PageProps) {
   if (!question) notFound();
 
   const user = await authApi.getUser(supabase);
-  const bookmarked = user ? await questionsApi.isBookmarked(supabase, user.id, question.id) : false;
+  const [bookmarked, inDeck] = user
+    ? await Promise.all([
+        questionsApi.isBookmarked(supabase, user.id, question.id),
+        flashcardApi.isAdded(supabase, user.id, question.id),
+      ])
+    : [false, false];
 
   return (
     <article className="mx-auto max-w-3xl space-y-8">
@@ -35,11 +41,18 @@ export default async function QuestionDetailPage({ params }: PageProps) {
           <ArrowLeft className="size-4" />
           Ngân hàng câu hỏi
         </Link>
-        <BookmarkButton
-          questionId={question.id}
-          initialBookmarked={bookmarked}
-          isAuthenticated={Boolean(user)}
-        />
+        <div className="flex items-center gap-2">
+          <AddFlashcardButton
+            questionId={question.id}
+            initialAdded={inDeck}
+            isAuthenticated={Boolean(user)}
+          />
+          <BookmarkButton
+            questionId={question.id}
+            initialBookmarked={bookmarked}
+            isAuthenticated={Boolean(user)}
+          />
+        </div>
       </div>
 
       <header className="space-y-4">

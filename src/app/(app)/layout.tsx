@@ -28,6 +28,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             {user ? (
               <>
                 <Link
+                  href={ROUTES.REVIEW}
+                  className="text-muted-foreground hover:text-foreground rounded-md px-3 py-2 text-sm transition-colors"
+                >
+                  Ôn tập
+                </Link>
+                <Link
                   href={ROUTES.QUIZ}
                   className="text-muted-foreground hover:text-foreground rounded-md px-3 py-2 text-sm transition-colors"
                 >
