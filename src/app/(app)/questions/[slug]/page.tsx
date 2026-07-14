@@ -1,10 +1,11 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Code2 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { DifficultyDots } from "@/components/common/difficulty-dots";
 import { LevelBadge } from "@/components/common/level-badge";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import { QUESTION_TYPE_LABELS } from "@/constants/taxonomy";
 import { ROUTES } from "@/constants/routes";
 import { authApi } from "@/features/auth";
@@ -30,6 +31,19 @@ export default async function QuestionDetailPage({ params }: PageProps) {
         flashcardApi.isAdded(supabase, user.id, question.id),
       ])
     : [false, false];
+
+  // Bài coding có trình soạn code không?
+  const hasCoding =
+    question.type === "coding" &&
+    Boolean(
+      (
+        await supabase
+          .from("coding_problems")
+          .select("id")
+          .eq("question_id", question.id)
+          .maybeSingle()
+      ).data,
+    );
 
   return (
     <article className="mx-auto max-w-3xl space-y-8">
@@ -76,6 +90,12 @@ export default async function QuestionDetailPage({ params }: PageProps) {
         <h1 className="text-2xl leading-snug font-bold tracking-tight text-balance">
           {question.prompt_md.replace(/[#*`>_]/g, "")}
         </h1>
+        {hasCoding ? (
+          <Link href={ROUTES.CODING_DETAIL(question.slug)} className={buttonVariants({ size: "sm" })}>
+            <Code2 className="size-4" />
+            Mở trình soạn code
+          </Link>
+        ) : null}
       </header>
 
       {question.code_snippet ? (

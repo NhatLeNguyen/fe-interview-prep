@@ -17,6 +17,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const items = [
     { href: ROUTES.QUESTIONS, label: "Câu hỏi" },
     { href: ROUTES.LEARNING_PATH, label: "Lộ trình" },
+    { href: ROUTES.CODING, label: "Luyện code" },
     ...(user
       ? [
           { href: ROUTES.REVIEW, label: "Ôn tập" },

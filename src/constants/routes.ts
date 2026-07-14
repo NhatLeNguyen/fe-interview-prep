@@ -21,6 +21,9 @@ export const ROUTES = {
   LEARNING_PATH: "/learning-path",
   LEARNING_PATH_DETAIL: (pathSlug: string) => `/learning-path/${pathSlug}`,
 
+  CODING: "/coding",
+  CODING_DETAIL: (slug: string) => `/coding/${slug}`,
+
   DASHBOARD: "/dashboard",
   BOOKMARKS: "/bookmarks",
 
@@ -32,7 +35,7 @@ export const ROUTES = {
 
 /**
  * Route yêu cầu đăng nhập (dùng ở proxy guard).
- * LƯU Ý: /questions, /learning-path là Public* (xem được không cần login — docs/02) nên KHÔNG nằm đây.
+ * LƯU Ý: /questions, /learning-path, /coding là Public* (xem được không cần login — docs/02) nên KHÔNG nằm đây.
  */
 export const PROTECTED_PREFIXES = [
   "/dashboard",
