@@ -910,6 +910,132 @@ export type Database = {
           },
         ];
       };
+      coding_problems: {
+        Row: {
+          id: string;
+          question_id: string;
+          function_name: string;
+          starter_code: string;
+          language: string;
+          time_limit_ms: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          question_id: string;
+          function_name: string;
+          starter_code?: string;
+          language?: string;
+          time_limit_ms?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          question_id?: string;
+          function_name?: string;
+          starter_code?: string;
+          language?: string;
+          time_limit_ms?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "coding_problems_question_id_fkey";
+            columns: ["question_id"];
+            referencedRelation: "questions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      coding_test_cases: {
+        Row: {
+          id: string;
+          problem_id: string;
+          args: Json;
+          expected: Json | null;
+          is_sample: boolean;
+          sort_order: number;
+        };
+        Insert: {
+          id?: string;
+          problem_id: string;
+          args: Json;
+          expected?: Json | null;
+          is_sample?: boolean;
+          sort_order?: number;
+        };
+        Update: {
+          id?: string;
+          problem_id?: string;
+          args?: Json;
+          expected?: Json | null;
+          is_sample?: boolean;
+          sort_order?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "coding_test_cases_problem_id_fkey";
+            columns: ["problem_id"];
+            referencedRelation: "coding_problems";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      coding_submissions: {
+        Row: {
+          id: string;
+          user_id: string;
+          problem_id: string;
+          code: string;
+          language: string;
+          status: "passed" | "failed" | "error";
+          passed_count: number;
+          total_count: number;
+          runtime_ms: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          problem_id: string;
+          code: string;
+          language?: string;
+          status: "passed" | "failed" | "error";
+          passed_count?: number;
+          total_count?: number;
+          runtime_ms?: number | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          problem_id?: string;
+          code?: string;
+          language?: string;
+          status?: "passed" | "failed" | "error";
+          passed_count?: number;
+          total_count?: number;
+          runtime_ms?: number | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "coding_submissions_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "coding_submissions_problem_id_fkey";
+            columns: ["problem_id"];
+            referencedRelation: "coding_problems";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;

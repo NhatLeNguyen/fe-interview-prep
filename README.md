@@ -46,6 +46,7 @@ Lấy tại **Supabase Dashboard → Settings → API Keys**. File `.env.local` 
 | `NEXT_PUBLIC_SUPABASE_URL` | Project URL | Công khai |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Publishable key (`sb_publishable_...`) | Công khai, an toàn (RLS bảo vệ) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Secret key (`sb_secret_...`) | 🔴 **BÍ MẬT** — chỉ server, KHÔNG commit, KHÔNG prefix `NEXT_PUBLIC_` |
+| `NEXT_PUBLIC_SITE_URL` | URL gốc của app (`http://localhost:3000` khi dev) | Chống host-header injection ở link xác nhận email; **nên set** ở production |
 
 ## 📜 Scripts
 
@@ -90,7 +91,7 @@ npx supabase gen types typescript --linked > src/lib/supabase/database.types.ts
 
 ## ☁️ Deploy (Vercel)
 
-Import repo vào Vercel, khai báo cùng 3 biến môi trường ở trên (Production + Preview), push `main` là tự deploy. Chi tiết từng bước: [`docs/06-setup-and-deployment.md`](./docs/06-setup-and-deployment.md).
+Import repo vào Vercel, khai báo **4 biến môi trường** ở trên (nhập **trước khi Deploy** — app validate env lúc build), push `main` là tự deploy. Runbook từng bước (kèm cấu hình `NEXT_PUBLIC_SITE_URL` + Supabase redirect URL): [`docs/DEPLOY.md`](./docs/DEPLOY.md).
 
 ---
 
