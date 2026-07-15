@@ -1,45 +1,48 @@
 import { describe, expect, it } from "vitest";
 
-import { RESULT_MARKER } from "../constants";
 import { parsePistonResult } from "./parse-piston";
 
-const payload = (o: unknown) => RESULT_MARKER + JSON.stringify(o);
+const M = "__CJ_abc123__";
+const payload = (o: unknown) => M + JSON.stringify(o);
 
 describe("parsePistonResult", () => {
-  it("all pass", () => {
-    const r = parsePistonResult({
-      stdout: payload({ results: [{ i: 0, pass: true, got: "3" }] }),
-      stderr: "",
-      code: 0,
-    });
-    expect(r.status).toBe("passed");
-    expect(r.passedCount).toBe(1);
-    expect(r.totalCount).toBe(1);
+  it("single marker -> ok + raw results (got only, no pass)", () => {
+    const r = parsePistonResult(
+      { stdout: payload({ results: [{ i: 0, got: "3", error: null }] }), stderr: "", code: 0 },
+      M,
+    );
+    expect(r.ok).toBe(true);
+    expect(r.results).toEqual([{ index: 0, got: "3", error: null }]);
   });
 
-  it("some fail", () => {
-    const r = parsePistonResult({
-      stdout: payload({ results: [{ i: 0, pass: true }, { i: 1, pass: false, got: "9" }] }),
-      stderr: "",
-      code: 0,
-    });
-    expect(r.status).toBe("failed");
-    expect(r.passedCount).toBe(1);
-    expect(r.totalCount).toBe(2);
+  it("no marker -> not ok, GENERIC message (never echoes stderr)", () => {
+    const r = parsePistonResult(
+      { stdout: "", stderr: "ReferenceError: SECRETLEAK is not defined", code: 1 },
+      M,
+    );
+    expect(r.ok).toBe(false);
+    expect(r.message).not.toContain("SECRETLEAK");
+    expect(r.message).not.toContain("ReferenceError");
   });
 
-  it("runtime error (no marker)", () => {
-    const r = parsePistonResult({ stdout: "", stderr: "ReferenceError: x is not defined", code: 1 });
-    expect(r.status).toBe("error");
-    expect(r.message).toContain("ReferenceError");
+  it("two marker lines -> not ok (anti-forgery)", () => {
+    const r = parsePistonResult(
+      {
+        stdout: `${payload({ results: [{ i: 0, got: "1" }] })}\n${payload({ results: [{ i: 0, got: "9" }] })}`,
+        stderr: "",
+        code: 0,
+      },
+      M,
+    );
+    expect(r.ok).toBe(false);
   });
 
-  it("ignores user console.log before marker", () => {
-    const r = parsePistonResult({
-      stdout: `hello\n${payload({ results: [{ i: 0, pass: true }] })}`,
-      stderr: "",
-      code: 0,
-    });
-    expect(r.status).toBe("passed");
+  it("ignores user stdout lines without the nonce marker", () => {
+    const r = parsePistonResult(
+      { stdout: `hello\n${payload({ results: [{ i: 0, got: "3" }] })}`, stderr: "", code: 0 },
+      M,
+    );
+    expect(r.ok).toBe(true);
+    expect(r.results.length).toBe(1);
   });
 });

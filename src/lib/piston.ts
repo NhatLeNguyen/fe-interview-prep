@@ -16,7 +16,10 @@ function baseUrl(): string {
 
 let cachedVersion: string | null = null;
 
-/** Lấy version runtime javascript của Piston (memo; fallback nếu /runtimes lỗi). */
+/**
+ * Lấy version runtime javascript của Piston. CHỈ cache khi resolve THÀNH CÔNG
+ * — lỗi tạm thời không "đầu độc" cache bằng fallback (self-host có thể là node 20.x).
+ */
 async function resolveJsVersion(): Promise<string> {
   if (cachedVersion) return cachedVersion;
   try {
@@ -33,15 +36,14 @@ async function resolveJsVersion(): Promise<string> {
         runtimes.find((r) => r.language === "javascript" && !r.aliases?.includes("deno-js")) ??
         runtimes.find((r) => r.language === "javascript");
       if (js?.version) {
-        cachedVersion = js.version;
+        cachedVersion = js.version; // chỉ cache khi thành công
         return cachedVersion;
       }
     }
   } catch {
-    // rơi xuống fallback
+    // rơi xuống fallback (KHÔNG cache) -> lần sau thử lại /runtimes
   }
-  cachedVersion = FALLBACK_JS_VERSION;
-  return cachedVersion;
+  return FALLBACK_JS_VERSION;
 }
 
 export interface PistonRun {

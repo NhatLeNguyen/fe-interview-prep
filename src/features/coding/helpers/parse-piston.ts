@@ -1,12 +1,17 @@
-import { CODING_MESSAGES, RESULT_MARKER } from "../constants";
+import { CODING_MESSAGES } from "../constants";
 
-/** Kết quả chấm THÔ từ output Piston (chưa lọc ca ẩn). */
+/** 1 ca thô từ sandbox: chỉ giá trị trả về (đã serialize) + lỗi runtime của ca đó. */
+export interface RawCase {
+  index: number;
+  got: string | null; // JSON string của giá trị trả về (hoặc null)
+  error: string | null;
+}
+
+/** Kết quả THÔ: sandbox chỉ trả giá trị — CHƯA chấm (chấm ở server). */
 export interface GradeRaw {
-  status: "passed" | "failed" | "error";
-  passedCount: number;
-  totalCount: number;
-  results: { index: number; pass: boolean; got?: string; error?: string | null }[];
-  message?: string;
+  ok: boolean; // harness chạy tới marker & JSON hợp lệ
+  results: RawCase[];
+  message?: string; // khi !ok — thông báo GENERIC (không echo stderr)
 }
 
 interface PistonRun {
@@ -15,48 +20,31 @@ interface PistonRun {
   code: number | null;
 }
 
-function truncate(s: string, max = 2000): string {
-  return s.length > max ? `${s.slice(0, max)}…` : s;
-}
-
 /**
- * Parse stdout/stderr từ Piston -> kết quả chấm (hàm THUẦN).
- * Lấy dòng CUỐI chứa RESULT_MARKER (bỏ qua console.log của user).
- * Không có marker -> lỗi biên dịch/runtime (message = stderr).
+ * Parse stdout từ sandbox theo `marker` (nonce mỗi lần chạy).
+ * - Đúng 1 dòng chứa marker & JSON hợp lệ -> ok, trả results.
+ * - 0 dòng (lỗi biên dịch/runtime) hoặc >1 (nghi giả mạo) -> !ok, message GENERIC.
+ * KHÔNG bao giờ echo stderr ra ngoài (tránh kênh rò rỉ). THUẦN.
  */
-export function parsePistonResult(run: PistonRun): GradeRaw {
-  const lines = run.stdout.split("\n");
-  const markerLine = [...lines].reverse().find((l) => l.includes(RESULT_MARKER));
-
-  if (!markerLine) {
-    const msg = (run.stderr || "").trim() || CODING_MESSAGES.noResult;
-    return { status: "error", passedCount: 0, totalCount: 0, results: [], message: truncate(msg) };
+export function parsePistonResult(run: PistonRun, marker: string): GradeRaw {
+  const markerLines = run.stdout.split("\n").filter((l) => l.includes(marker));
+  if (markerLines.length !== 1) {
+    return { ok: false, results: [], message: CODING_MESSAGES.runtimeError };
   }
+  const line = markerLines[0];
+  const json = line.slice(line.indexOf(marker) + marker.length);
 
-  const json = markerLine.slice(markerLine.indexOf(RESULT_MARKER) + RESULT_MARKER.length);
-  let parsed: { results?: { i: number; pass: boolean; got?: string; error?: string | null }[] };
+  let parsed: { results?: { i: number; got?: string | null; error?: string | null }[] };
   try {
     parsed = JSON.parse(json);
   } catch {
-    return {
-      status: "error",
-      passedCount: 0,
-      totalCount: 0,
-      results: [],
-      message: CODING_MESSAGES.invalidResult,
-    };
+    return { ok: false, results: [], message: CODING_MESSAGES.runtimeError };
   }
 
-  const results = (parsed.results ?? []).map((r) => ({
+  const results: RawCase[] = (parsed.results ?? []).map((r) => ({
     index: r.i,
-    pass: Boolean(r.pass),
-    got: r.got,
+    got: r.got ?? null,
     error: r.error ?? null,
   }));
-  const passedCount = results.filter((r) => r.pass).length;
-  const totalCount = results.length;
-  const status: GradeRaw["status"] =
-    totalCount > 0 && passedCount === totalCount ? "passed" : "failed";
-
-  return { status, passedCount, totalCount, results };
+  return { ok: true, results };
 }

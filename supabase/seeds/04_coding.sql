@@ -6,13 +6,13 @@
 do $$
 declare v_qid uuid; v_pid uuid;
 begin
-  insert into public.questions (slug, topic_id, type, level, difficulty, frequency, prompt_md, code_language, is_published)
+  insert into public.questions (slug, topic_id, type, level, difficulty, frequency, prompt_md, answer_md, code_language, is_published)
   values ($q$sum-array$q$,
           (select id from public.topics where slug = $t$js-types-coercion$t$),
-          'coding', $l$junior$l$, 1, 3, $p$Viết hàm `sumArray(nums)` nhận một mảng số và trả về **tổng** của tất cả phần tử. Mảng rỗng trả về 0.$p$, 'javascript', true)
+          'coding', $l$junior$l$, 1, 3, $p$Viết hàm `sumArray(nums)` nhận một mảng số và trả về **tổng** của tất cả phần tử. Mảng rỗng trả về 0.$p$, $a$Gợi ý: dùng reduce cộng dồn, khởi tạo 0.$a$, 'javascript', true)
   on conflict (slug) do update set
     topic_id = excluded.topic_id, level = excluded.level,
-    difficulty = excluded.difficulty, prompt_md = excluded.prompt_md
+    difficulty = excluded.difficulty, prompt_md = excluded.prompt_md, answer_md = excluded.answer_md
   returning id into v_qid;
 
   insert into public.coding_problems (question_id, function_name, starter_code, time_limit_ms)
@@ -35,13 +35,13 @@ end $$;
 do $$
 declare v_qid uuid; v_pid uuid;
 begin
-  insert into public.questions (slug, topic_id, type, level, difficulty, frequency, prompt_md, code_language, is_published)
+  insert into public.questions (slug, topic_id, type, level, difficulty, frequency, prompt_md, answer_md, code_language, is_published)
   values ($q$reverse-string$q$,
           (select id from public.topics where slug = $t$js-types-coercion$t$),
-          'coding', $l$junior$l$, 1, 3, $p$Viết hàm `reverseString(str)` trả về chuỗi được **đảo ngược**.$p$, 'javascript', true)
+          'coding', $l$junior$l$, 1, 3, $p$Viết hàm `reverseString(str)` trả về chuỗi được **đảo ngược**.$p$, $a$Gợi ý: split('') rồi reverse() rồi join('').$a$, 'javascript', true)
   on conflict (slug) do update set
     topic_id = excluded.topic_id, level = excluded.level,
-    difficulty = excluded.difficulty, prompt_md = excluded.prompt_md
+    difficulty = excluded.difficulty, prompt_md = excluded.prompt_md, answer_md = excluded.answer_md
   returning id into v_qid;
 
   insert into public.coding_problems (question_id, function_name, starter_code, time_limit_ms)
@@ -64,13 +64,13 @@ end $$;
 do $$
 declare v_qid uuid; v_pid uuid;
 begin
-  insert into public.questions (slug, topic_id, type, level, difficulty, frequency, prompt_md, code_language, is_published)
+  insert into public.questions (slug, topic_id, type, level, difficulty, frequency, prompt_md, answer_md, code_language, is_published)
   values ($q$fizzbuzz$q$,
           (select id from public.topics where slug = $t$js-scope-closure$t$),
-          'coding', $l$junior$l$, 2, 3, $p$Viết hàm `fizzbuzz(n)` trả về mảng từ 1 đến n: bội của 3 → `"Fizz"`, bội của 5 → `"Buzz"`, bội của cả hai → `"FizzBuzz"`, còn lại giữ nguyên **số**.$p$, 'javascript', true)
+          'coding', $l$junior$l$, 2, 3, $p$Viết hàm `fizzbuzz(n)` trả về mảng từ 1 đến n: bội của 3 → `"Fizz"`, bội của 5 → `"Buzz"`, bội của cả hai → `"FizzBuzz"`, còn lại giữ nguyên **số**.$p$, $a$Gợi ý: lặp 1..n, kiểm tra bội 15 trước, rồi 3, rồi 5.$a$, 'javascript', true)
   on conflict (slug) do update set
     topic_id = excluded.topic_id, level = excluded.level,
-    difficulty = excluded.difficulty, prompt_md = excluded.prompt_md
+    difficulty = excluded.difficulty, prompt_md = excluded.prompt_md, answer_md = excluded.answer_md
   returning id into v_qid;
 
   insert into public.coding_problems (question_id, function_name, starter_code, time_limit_ms)
@@ -93,13 +93,13 @@ end $$;
 do $$
 declare v_qid uuid; v_pid uuid;
 begin
-  insert into public.questions (slug, topic_id, type, level, difficulty, frequency, prompt_md, code_language, is_published)
+  insert into public.questions (slug, topic_id, type, level, difficulty, frequency, prompt_md, answer_md, code_language, is_published)
   values ($q$unique-array$q$,
           (select id from public.topics where slug = $t$js-types-coercion$t$),
-          'coding', $l$mid$l$, 2, 3, $p$Viết hàm `unique(arr)` trả về mảng mới **bỏ phần tử trùng**, giữ nguyên thứ tự xuất hiện đầu tiên.$p$, 'javascript', true)
+          'coding', $l$mid$l$, 2, 3, $p$Viết hàm `unique(arr)` trả về mảng mới **bỏ phần tử trùng**, giữ nguyên thứ tự xuất hiện đầu tiên.$p$, $a$Gợi ý: dùng Set, hoặc lọc theo indexOf.$a$, 'javascript', true)
   on conflict (slug) do update set
     topic_id = excluded.topic_id, level = excluded.level,
-    difficulty = excluded.difficulty, prompt_md = excluded.prompt_md
+    difficulty = excluded.difficulty, prompt_md = excluded.prompt_md, answer_md = excluded.answer_md
   returning id into v_qid;
 
   insert into public.coding_problems (question_id, function_name, starter_code, time_limit_ms)
@@ -122,13 +122,13 @@ end $$;
 do $$
 declare v_qid uuid; v_pid uuid;
 begin
-  insert into public.questions (slug, topic_id, type, level, difficulty, frequency, prompt_md, code_language, is_published)
+  insert into public.questions (slug, topic_id, type, level, difficulty, frequency, prompt_md, answer_md, code_language, is_published)
   values ($q$flatten-array$q$,
           (select id from public.topics where slug = $t$js-patterns-memory$t$),
-          'coding', $l$mid$l$, 3, 3, $p$Viết hàm `flatten(arr)` **làm phẳng sâu** một mảng lồng nhau nhiều tầng thành mảng một chiều, giữ thứ tự.$p$, 'javascript', true)
+          'coding', $l$mid$l$, 3, 3, $p$Viết hàm `flatten(arr)` **làm phẳng sâu** một mảng lồng nhau nhiều tầng thành mảng một chiều, giữ thứ tự.$p$, $a$Gợi ý: đệ quy, Array.isArray để nhận mảng con.$a$, 'javascript', true)
   on conflict (slug) do update set
     topic_id = excluded.topic_id, level = excluded.level,
-    difficulty = excluded.difficulty, prompt_md = excluded.prompt_md
+    difficulty = excluded.difficulty, prompt_md = excluded.prompt_md, answer_md = excluded.answer_md
   returning id into v_qid;
 
   insert into public.coding_problems (question_id, function_name, starter_code, time_limit_ms)

@@ -146,8 +146,10 @@ create policy "coding_submissions_admin_read" on public.coding_submissions
 - Env mới (optional): `PISTON_URL` (default `https://emkc.org/api/v2/piston`). Không cần key. Thêm vào `src/config/env.ts` (serverEnv, optional) + `.env.example`.
 - Guard: giới hạn `source.length` (vd ≤ 50KB) trước khi gửi.
 
+> **BẢO MẬT (sửa sau review 2026-07-14):** sandbox chạy Node thật → user code có thể đọc source / ghi đè built-ins. Vì vậy: **(a)** `expected` KHÔNG vào sandbox; **(b)** sandbox CHỈ trả `got` (giá trị đã serialize), **so sánh pass/fail làm Ở SERVER** bằng `deepEqual` tin cậy; **(c)** marker là **nonce ngẫu nhiên mỗi lần chạy** (server sinh), parse từ chối nếu marker xuất hiện ≠ 1 lần (chống giả mạo); **(d)** KHÔNG echo stderr về client (thông báo generic); **(e)** cắt độ dài `got`/`error`. Harness bắt giữ built-in (`JSON.stringify`, `console.log`) vào biến cục bộ TRƯỚC code user. **Residual (fast-follow):** hidden INPUTS vẫn vào sandbox để gọi hàm → user cố tình có thể bắt và trả về qua `got` của ca mẫu; đáp án (expected) thì tuyệt đối an toàn. Cách ly triệt để = chạy mỗi ca 1 lần gọi Piston riêng.
+
 ### 3.2 Build harness — `src/features/coding/helpers/build-harness.ts` (hàm THUẦN)
-`buildHarness({ userCode, functionName, cases }): string` trả về source JS gửi lên Piston:
+`buildHarness({ userCode, functionName, argsList, marker, maxGotLen }): string` — chỉ ARGS, có nonce marker, KHÔNG deepEqual/expected. Cấu trúc source gửi Piston:
 ```
 <userCode>
 

@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 
 import { ROUTES } from "@/constants/routes";
@@ -8,8 +9,9 @@ import { executeJavascript, PistonError } from "@/lib/piston";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { codingApi } from "./api/coding.api";
-import { CODING_MESSAGES, MAX_CODE_BYTES } from "./constants";
+import { CODING_MESSAGES, MAX_CODE_BYTES, MAX_GOT_LEN } from "./constants";
 import { buildHarness } from "./helpers/build-harness";
+import { deepEqual } from "./helpers/deep-equal";
 import { parsePistonResult } from "./helpers/parse-piston";
 import type { GradeResult, GradeResultCase } from "./types";
 
@@ -18,8 +20,12 @@ function errorResult(message: string, totalCount = 0): GradeResult {
 }
 
 /**
- * Chấm code: đọc TOÀN BỘ test case bằng admin client (ca ẩn không lộ ra client),
- * ghép harness -> Piston -> parse -> LỌC (ca ẩn chỉ trả index+pass).
+ * Chấm code an toàn:
+ * - Đọc TOÀN BỘ test case bằng admin client (ca ẩn không lộ ra client).
+ * - Sandbox CHỈ nhận args + trả giá trị (expected KHÔNG vào sandbox).
+ * - So sánh pass/fail làm Ở ĐÂY (server, realm tin cậy) bằng deepEqual.
+ * - Marker nonce mỗi lần chạy -> chống giả mạo dòng kết quả.
+ * - Ca ẩn chỉ trả {index, pass}; ca mẫu mới kèm chi tiết.
  */
 async function grade(
   problemId: string,
@@ -29,58 +35,66 @@ async function grade(
 
   const admin = createAdminClient();
   const spec = await codingApi.getGradingSpec(admin, problemId);
-  if (!spec) return { result: errorResult("Không tìm thấy bài.") };
+  if (!spec) return { result: errorResult(CODING_MESSAGES.notFound) };
 
+  const marker = `__CJ_${randomUUID().replace(/-/g, "")}__`;
   const harness = buildHarness({
     userCode: code,
     functionName: spec.functionName,
-    cases: spec.cases.map((c) => ({ args: c.args, expected: c.expected })),
+    argsList: spec.cases.map((c) => c.args),
+    marker,
+    maxGotLen: MAX_GOT_LEN,
   });
 
   let raw;
   try {
     const run = await executeJavascript(harness, { timeoutMs: spec.timeLimitMs });
-    raw = parsePistonResult(run);
+    raw = parsePistonResult(run, marker);
   } catch (e) {
     const msg = e instanceof PistonError ? e.message : CODING_MESSAGES.pistonError;
     return { result: errorResult(msg, spec.cases.length), questionId: spec.questionId };
   }
 
-  if (raw.status === "error") {
+  if (!raw.ok) {
     return {
-      result: errorResult(raw.message ?? CODING_MESSAGES.noResult, spec.cases.length),
+      result: errorResult(raw.message ?? CODING_MESSAGES.runtimeError, spec.cases.length),
       questionId: spec.questionId,
     };
   }
 
-  const cases: GradeResultCase[] = raw.results.map((r) => {
-    const spc = spec.cases[r.index];
-    if (spc?.isSample) {
-      return {
-        index: r.index,
-        pass: r.pass,
-        isSample: true,
-        args: spc.args,
-        expected: spc.expected,
-        got: r.got,
-        error: r.error,
-      };
+  // So sánh SERVER-SIDE. Duyệt theo spec.cases (nguồn tin cậy), tra kết quả theo index.
+  const byIndex = new Map(raw.results.map((r) => [r.index, r]));
+  const cases: GradeResultCase[] = spec.cases.map((c, i) => {
+    const r = byIndex.get(i);
+    let pass = false;
+    let got: string | undefined;
+    let error: string | null | undefined;
+    if (r) {
+      error = r.error;
+      got = r.got ?? undefined;
+      if (!r.error && r.got != null) {
+        try {
+          pass = deepEqual(JSON.parse(r.got), c.expected);
+        } catch {
+          pass = false;
+        }
+      }
     }
-    return { index: r.index, pass: r.pass, isSample: false };
+    if (c.isSample) {
+      return { index: i, pass, isSample: true, args: c.args, expected: c.expected, got, error };
+    }
+    return { index: i, pass, isSample: false };
   });
 
-  return {
-    result: {
-      status: raw.status,
-      passedCount: raw.passedCount,
-      totalCount: raw.totalCount,
-      cases,
-    },
-    questionId: spec.questionId,
-  };
+  const passedCount = cases.filter((x) => x.pass).length;
+  const totalCount = cases.length;
+  const status: GradeResult["status"] =
+    totalCount > 0 && passedCount === totalCount ? "passed" : "failed";
+
+  return { result: { status, passedCount, totalCount, cases }, questionId: spec.questionId };
 }
 
-/** Chạy thử (không lưu). Yêu cầu đăng nhập để tránh lạm dụng Piston. */
+/** Chạy thử (không lưu). Yêu cầu đăng nhập để tránh lạm dụng sandbox. */
 export async function runSolution(problemId: string, code: string): Promise<GradeResult> {
   const supabase = await createClient();
   const {

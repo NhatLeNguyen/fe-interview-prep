@@ -2,6 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 
 import { ROUTES } from "@/constants/routes";
 import { authApi } from "@/features/auth";
@@ -12,10 +13,15 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+// Dedup trong 1 request: generateMetadata + page dùng chung 1 lần fetch.
+const loadProblem = cache(async (slug: string) => {
+  const supabase = await createClient();
+  return codingApi.getProblem(supabase, slug);
+});
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = await createClient();
-  const problem = await codingApi.getProblem(supabase, slug);
+  const problem = await loadProblem(slug);
   return { title: problem ? problem.title : "Luyện code" };
 }
 
@@ -23,7 +29,7 @@ export default async function CodingProblemPage({ params }: PageProps) {
   const { slug } = await params;
   const supabase = await createClient();
   const user = await authApi.getUser(supabase);
-  const problem = await codingApi.getProblem(supabase, slug);
+  const problem = await loadProblem(slug);
   if (!problem) notFound();
 
   return (
