@@ -1036,6 +1036,159 @@ export type Database = {
           },
         ];
       };
+      badges: {
+        Row: {
+          id: string;
+          slug: string;
+          name: string;
+          description: string;
+          icon: string;
+          criteria_type: "streak" | "study" | "quiz" | "coding_solved" | "xp";
+          threshold: number;
+          sort_order: number;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          name: string;
+          description: string;
+          icon?: string;
+          criteria_type: "streak" | "study" | "quiz" | "coding_solved" | "xp";
+          threshold: number;
+          sort_order?: number;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          name?: string;
+          description?: string;
+          icon?: string;
+          criteria_type?: "streak" | "study" | "quiz" | "coding_solved" | "xp";
+          threshold?: number;
+          sort_order?: number;
+        };
+        Relationships: [];
+      };
+      user_badges: {
+        Row: {
+          id: string;
+          user_id: string;
+          badge_id: string;
+          earned_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          badge_id: string;
+          earned_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          badge_id?: string;
+          earned_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "user_badges_badge_id_fkey";
+            columns: ["badge_id"];
+            referencedRelation: "badges";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      interview_sessions: {
+        Row: {
+          id: string;
+          user_id: string;
+          level: Database["public"]["Enums"]["level"];
+          category_slug: string | null;
+          total_questions: number;
+          status: Database["public"]["Enums"]["attempt_status"];
+          self_score: number | null;
+          started_at: string;
+          finished_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          level?: Database["public"]["Enums"]["level"];
+          category_slug?: string | null;
+          total_questions: number;
+          status?: Database["public"]["Enums"]["attempt_status"];
+          self_score?: number | null;
+          started_at?: string;
+          finished_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          level?: Database["public"]["Enums"]["level"];
+          category_slug?: string | null;
+          total_questions?: number;
+          status?: Database["public"]["Enums"]["attempt_status"];
+          self_score?: number | null;
+          started_at?: string;
+          finished_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "interview_sessions_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      interview_answers: {
+        Row: {
+          id: string;
+          session_id: string;
+          question_id: string;
+          order_index: number;
+          answer_text: string | null;
+          self_rating: number | null;
+          answered_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          session_id: string;
+          question_id: string;
+          order_index: number;
+          answer_text?: string | null;
+          self_rating?: number | null;
+          answered_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          session_id?: string;
+          question_id?: string;
+          order_index?: number;
+          answer_text?: string | null;
+          self_rating?: number | null;
+          answered_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "interview_answers_session_id_fkey";
+            columns: ["session_id"];
+            referencedRelation: "interview_sessions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "interview_answers_question_id_fkey";
+            columns: ["question_id"];
+            referencedRelation: "questions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -1048,6 +1201,22 @@ export type Database = {
       build_question_search: {
         Args: { p_prompt: string; p_answer: string; p_question_id: string };
         Returns: unknown;
+      };
+      activity_xp: {
+        Args: { p_type: Database["public"]["Enums"]["activity_type"] };
+        Returns: number;
+      };
+      my_xp: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
+      my_rank: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
+      leaderboard_anon: {
+        Args: { p_limit?: number };
+        Returns: { rank: number; xp: number }[];
       };
     };
     Enums: {

@@ -24,8 +24,12 @@ export const ROUTES = {
   CODING: "/coding",
   CODING_DETAIL: (slug: string) => `/coding/${slug}`,
 
+  INTERVIEW: "/mock-interview",
+  INTERVIEW_SESSION: (sessionId: string) => `/mock-interview/${sessionId}`,
+
   DASHBOARD: "/dashboard",
   BOOKMARKS: "/bookmarks",
+  ACHIEVEMENTS: "/achievements",
 
   ADMIN: "/admin",
   ADMIN_QUESTIONS: "/admin/questions",
@@ -40,6 +44,8 @@ export const ROUTES = {
 export const PROTECTED_PREFIXES = [
   "/dashboard",
   "/bookmarks",
+  "/achievements",
+  "/mock-interview",
   "/quiz",
   "/flashcards",
   "/review",

@@ -116,7 +116,9 @@ export async function submitSolution(problemId: string, code: string): Promise<G
 
   const { result, questionId } = await grade(problemId, code);
 
-  await supabase.from("coding_submissions").insert({
+  // BẢO MẬT: status='passed' quyết định badge + "Đã giải" -> là KẾT QUẢ.
+  // Migration 0010 revoke quyền ghi của authenticated; chỉ ghi bằng admin sau khi chấm thật.
+  await createAdminClient().from("coding_submissions").insert({
     user_id: user.id,
     problem_id: problemId,
     code,

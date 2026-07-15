@@ -13,10 +13,23 @@ import { cn } from "@/lib/cn";
 interface NavItem {
   href: string;
   label: string;
+  /** Số hiển thị trên badge (vd thẻ đến hạn). Bỏ qua nếu 0/undefined. */
+  badge?: number;
 }
 
 const linkClass =
-  "text-muted-foreground hover:text-foreground rounded-md px-3 py-2 text-sm transition-colors";
+  "text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm transition-colors";
+
+function NavBadge({ count }: { count: number }) {
+  return (
+    <span
+      aria-label={`${count} thẻ đến hạn`}
+      className="bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-[10px] leading-none font-semibold tabular-nums"
+    >
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
 
 /** Nav header: hàng ngang trên desktop, hamburger + dropdown trên mobile. */
 export function HeaderNav({
@@ -36,6 +49,7 @@ export function HeaderNav({
         {items.map((i) => (
           <Link key={i.href} href={i.href} className={linkClass}>
             {i.label}
+            {i.badge ? <NavBadge count={i.badge} /> : null}
           </Link>
         ))}
       </nav>
@@ -71,6 +85,7 @@ export function HeaderNav({
                 onClick={() => setOpen(false)}
               >
                 {i.label}
+                {i.badge ? <NavBadge count={i.badge} /> : null}
               </Link>
             ))}
           </nav>

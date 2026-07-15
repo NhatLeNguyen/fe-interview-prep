@@ -4,15 +4,23 @@ import { HeaderNav } from "@/components/layout/header-nav";
 import { siteConfig } from "@/config/site";
 import { ROUTES } from "@/constants/routes";
 import { authApi } from "@/features/auth";
+import { flashcardApi } from "@/features/flashcard";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const user = await authApi.getUser(supabase);
-  const isAdmin =
-    user != null &&
-    (await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()).data?.role ===
-      "admin";
+  const [isAdmin, dueCount] = user
+    ? await Promise.all([
+        supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle()
+          .then((r) => r.data?.role === "admin"),
+        flashcardApi.countDue(supabase, user.id).catch(() => 0),
+      ])
+    : [false, 0];
 
   const items = [
     { href: ROUTES.QUESTIONS, label: "Câu hỏi" },
@@ -20,10 +28,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     { href: ROUTES.CODING, label: "Luyện code" },
     ...(user
       ? [
-          { href: ROUTES.REVIEW, label: "Ôn tập" },
+          { href: ROUTES.REVIEW, label: "Ôn tập", badge: dueCount },
           { href: ROUTES.QUIZ, label: "Quiz" },
+          { href: ROUTES.INTERVIEW, label: "Phỏng vấn" },
           { href: ROUTES.BOOKMARKS, label: "Đã lưu" },
           { href: ROUTES.DASHBOARD, label: "Tiến độ" },
+          { href: ROUTES.ACHIEVEMENTS, label: "Thành tích" },
           ...(isAdmin ? [{ href: ROUTES.ADMIN, label: "Admin" }] : []),
         ]
       : []),

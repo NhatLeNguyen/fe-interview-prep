@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
 import type { Enums } from "@/types/db";
 import type { DashboardData } from "../types";
@@ -20,7 +21,12 @@ function yesterdayStr(): string {
 export const progressApi = {
   /**
    * Ghi 1 hoạt động học + cập nhật streak (cache trên profiles). Best-effort: nuốt lỗi
-   * để không làm hỏng action chính (quiz/flashcard). Dùng USER client (RLS owner).
+   * để không làm hỏng action chính (quiz/flashcard).
+   *
+   * BẢO MẬT: user_activity + cột streak là "KẾT QUẢ" (nguồn tính XP/hạng/badge) nên
+   * migration 0010 đã REVOKE quyền ghi của `authenticated` -> phải ghi bằng ADMIN client.
+   * Hàm này CHỈ được gọi từ server action SAU KHI đã xác minh việc học là thật.
+   * `client` (user client) chỉ dùng để ĐỌC hồ sơ.
    */
   async logActivity(
     client: Client,
@@ -28,8 +34,9 @@ export const progressApi = {
     activityType: ActivityType,
     refId: string | null = null,
   ): Promise<void> {
+    const admin = createAdminClient();
     const today = todayStr();
-    await client
+    await admin
       .from("user_activity")
       .insert({ user_id: userId, activity_type: activityType, ref_id: refId, activity_date: today });
 
@@ -41,7 +48,7 @@ export const progressApi = {
     if (!profile || profile.last_active_date === today) return;
 
     const nextStreak = profile.last_active_date === yesterdayStr() ? profile.current_streak + 1 : 1;
-    await client
+    await admin
       .from("profiles")
       .update({
         current_streak: nextStreak,
