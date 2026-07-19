@@ -16,7 +16,7 @@ type Client = SupabaseClient<Database>;
 // topics!inner / categories!inner: topic_id & category_id đều NOT NULL nên inner không loại bớt hàng,
 // đồng thời cho phép filter theo topics.categories.slug.
 const LIST_SELECT =
-  "id, slug, prompt_md, type, level, difficulty, frequency, topics!inner(name, slug, categories!inner(name, slug, color))";
+  "id, slug, prompt_md, type, level, difficulty, frequency, topics!inner(name, slug, categories!inner(name, slug, color, tracks!inner(slug)))";
 
 type ListRaw = Pick<
   Tables<"questions">,
@@ -72,6 +72,7 @@ export const questionsApi = {
     if (filters.topicId) filtered = filtered.eq("topic_id", filters.topicId);
     if (filters.topicSlug) filtered = filtered.eq("topics.slug", filters.topicSlug);
     if (filters.categorySlug) filtered = filtered.eq("topics.categories.slug", filters.categorySlug);
+    if (filters.trackSlug) filtered = filtered.eq("topics.categories.tracks.slug", filters.trackSlug);
     if (filters.search) {
       filtered = filtered.textSearch("search", filters.search, { type: "websearch", config: "simple" });
     }
@@ -92,12 +93,16 @@ export const questionsApi = {
   },
 
   /** Danh sách category (option cho bộ lọc). */
-  async listCategories(client: Client): Promise<CategoryOption[]> {
+  async listCategories(
+    client: Client,
+    trackSlug = "fe-interview",
+  ): Promise<CategoryOption[]> {
     const { data, error } = await client
       .from("categories")
-      .select("id, slug, name, color")
+      .select("id, slug, name, color, tracks!inner(slug)")
       .eq("is_published", true)
       .is("deleted_at", null)
+      .eq("tracks.slug", trackSlug)
       .order("sort_order", { ascending: true })
       .returns<CategoryOption[]>();
     if (error) throw new Error(error.message);

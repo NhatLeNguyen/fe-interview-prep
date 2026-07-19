@@ -15,17 +15,19 @@ export const quizApi = {
   /** Chọn id các câu hỏi type='quiz' theo bộ lọc (để bốc ngẫu nhiên tạo bộ đề). */
   async pickQuizQuestionIds(
     client: Client,
-    opts: { categorySlug?: string; level?: QuizLevel },
+    opts: { categorySlug?: string; level?: QuizLevel; trackSlug?: string; topicSlug?: string },
   ): Promise<string[]> {
     let query = client
       .from("questions")
-      .select("id, topics!inner(categories!inner(slug))")
+      .select("id, topics!inner(slug, categories!inner(slug, tracks!inner(slug)))")
       .eq("is_published", true)
       .is("deleted_at", null)
       .eq("type", "quiz");
 
     if (opts.level) query = query.eq("level", opts.level);
     if (opts.categorySlug) query = query.eq("topics.categories.slug", opts.categorySlug);
+    if (opts.trackSlug) query = query.eq("topics.categories.tracks.slug", opts.trackSlug);
+    if (opts.topicSlug) query = query.eq("topics.slug", opts.topicSlug);
 
     const { data, error } = await query.limit(80).returns<{ id: string }[]>();
     if (error) throw new Error(error.message);

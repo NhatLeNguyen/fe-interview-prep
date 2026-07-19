@@ -54,5 +54,7 @@ export interface QuestionFilters {
   categorySlug?: string;
   topicId?: string;
   topicSlug?: string;
+  /** Lọc theo track (vd 'fe-interview') — tách nội dung cert khỏi FE. */
+  trackSlug?: string;
   sort?: QuestionSort;
 }

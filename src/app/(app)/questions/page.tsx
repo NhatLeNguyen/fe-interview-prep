@@ -28,8 +28,9 @@ export default async function QuestionsPage({ searchParams }: PageProps) {
   const filtered = hasActiveFilters(filters);
 
   const supabase = await createClient();
+  // Ngân hàng câu hỏi FE: chỉ track fe-interview (không lẫn nội dung ôn thi chứng chỉ).
   const [questions, categories] = await Promise.all([
-    questionsApi.list(supabase, filters),
+    questionsApi.list(supabase, { ...filters, trackSlug: "fe-interview" }),
     questionsApi.listCategories(supabase),
   ]);
 

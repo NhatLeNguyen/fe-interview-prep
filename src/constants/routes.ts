@@ -27,6 +27,10 @@ export const ROUTES = {
   INTERVIEW: "/mock-interview",
   INTERVIEW_SESSION: (sessionId: string) => `/mock-interview/${sessionId}`,
 
+  CERTS: "/certs",
+  CERT_TRACK: (trackSlug: string) => `/certs/${trackSlug}`,
+  CERT_TOPIC: (trackSlug: string, topicSlug: string) => `/certs/${trackSlug}/${topicSlug}`,
+
   DASHBOARD: "/dashboard",
   BOOKMARKS: "/bookmarks",
   ACHIEVEMENTS: "/achievements",
@@ -39,7 +43,7 @@ export const ROUTES = {
 
 /**
  * Route yêu cầu đăng nhập (dùng ở proxy guard).
- * LƯU Ý: /questions, /learning-path, /coding là Public* (xem được không cần login — docs/02) nên KHÔNG nằm đây.
+ * LƯU Ý: /questions, /learning-path, /coding, /certs là Public* (xem được không cần login) nên KHÔNG nằm đây.
  */
 export const PROTECTED_PREFIXES = [
   "/dashboard",

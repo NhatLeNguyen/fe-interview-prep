@@ -35,7 +35,18 @@ export async function startCustomQuiz(formData: FormData): Promise<void> {
     ? (levelRaw as QuizLevel)
     : undefined;
 
-  const allIds = await quizApi.pickQuizQuestionIds(supabase, { categorySlug, level });
+  // Cert quiz truyền track+topic ẩn; FE quiz không -> mặc định track fe-interview
+  // (không kéo nhầm câu ôn thi chứng chỉ khi chọn "tất cả").
+  const trackRaw = String(formData.get("track") ?? "").trim();
+  const trackSlug = trackRaw || "fe-interview";
+  const topicSlug = String(formData.get("topic") ?? "").trim() || undefined;
+
+  const allIds = await quizApi.pickQuizQuestionIds(supabase, {
+    categorySlug,
+    level,
+    trackSlug,
+    topicSlug,
+  });
   const ids = shuffle(allIds, Math.random).slice(0, count);
   if (ids.length === 0) redirect(`${ROUTES.QUIZ}?error=empty`);
 

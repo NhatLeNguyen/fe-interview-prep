@@ -67,6 +67,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      tracks: {
+        Row: {
+          id: string;
+          slug: string;
+          name: string;
+          description: string | null;
+          kind: "interview" | "certification";
+          sort_order: number;
+          is_published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          name: string;
+          description?: string | null;
+          kind: "interview" | "certification";
+          sort_order?: number;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          name?: string;
+          description?: string | null;
+          kind?: "interview" | "certification";
+          sort_order?: number;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       categories: {
         Row: {
           id: string;
@@ -75,6 +111,7 @@ export type Database = {
           description: string | null;
           icon: string | null;
           color: string | null;
+          track_id: string;
           sort_order: number;
           is_published: boolean;
           deleted_at: string | null;
@@ -88,6 +125,7 @@ export type Database = {
           description?: string | null;
           icon?: string | null;
           color?: string | null;
+          track_id: string;
           sort_order?: number;
           is_published?: boolean;
           deleted_at?: string | null;
@@ -101,13 +139,21 @@ export type Database = {
           description?: string | null;
           icon?: string | null;
           color?: string | null;
+          track_id?: string;
           sort_order?: number;
           is_published?: boolean;
           deleted_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "categories_track_id_fkey";
+            columns: ["track_id"];
+            referencedRelation: "tracks";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       topics: {
         Row: {
